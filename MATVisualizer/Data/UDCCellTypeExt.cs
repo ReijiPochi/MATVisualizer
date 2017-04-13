@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MATVisualizer.Data
 {
@@ -12,7 +8,7 @@ namespace MATVisualizer.Data
     public static class UDCCellTypeExt
     {
         /// <summary>
-        /// 各UDCCellTypeの成分数を取得します
+        /// 指定されたUDCCellTypeの成分数を取得します
         /// </summary>
         /// <param name="type">成分数を取得したいUDCElementType</param>
         /// <returns>成分数</returns>

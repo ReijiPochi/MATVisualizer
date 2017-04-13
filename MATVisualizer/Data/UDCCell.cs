@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MATVisualizer.Data
 {
@@ -16,31 +12,31 @@ namespace MATVisualizer.Data
         /// </summary>
         /// <param name="material">材料番号</param>
         /// <param name="type">種類</param>
-        /// <param name="values">要素を構成する節点番号</param>
-        public UDCCell(int material, UDCCellType type, params int[] values)
+        /// <param name="nodes">要素を構成する節点番号</param>
+        public UDCCell(int material, UDCCellType type, params int[] nodes)
         {
-            if (values.Length != type.GetNumberOfValues())
+            if (nodes.Length != type.GetNumberOfValues())
                 throw new Exception("UDCElementTypeと与えられた節点の数が一致しません。");
 
             MaterialNumber = material;
             CellType = type;
-            Values = values;
+            Nodes = nodes;
         }
 
         /// <summary>
         /// UDCElementの材料（番号）です。
         /// </summary>
-        public int MaterialNumber { get; protected set; }
+        public int MaterialNumber { get; set; }
 
         /// <summary>
         /// UDCElementの要素形状です。
         /// </summary>
-        public UDCCellType CellType { get; protected set; }
+        public UDCCellType CellType { get; set; }
 
         /// <summary>
         /// UDCElementの節点（番号）です。
         /// </summary>
-        public int[] Values { get; protected set; }
+        public int[] Nodes { get; set; }
 
         /// <summary>
         /// 要素のデータです。
