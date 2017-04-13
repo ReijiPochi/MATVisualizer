@@ -64,24 +64,59 @@ namespace MATVisualizer.Data
                             state++;
                             break;
 
-                        case LoadingState.PointAndElementCount:
-                            result = LoadPointAndElementCount(data, line);
+                        case LoadingState.NodeAndCellCount:
+                            result = LoadNodeAndCellCount(data, line);
                             if (result) data.InitializeArrayOfPointAndElement();
                             state++;
                             break;
 
-                        case LoadingState.Points:
-                            result = LoadPoints(data, line);
+                        case LoadingState.Nodes:
+                            result = LoadNodes(data, line);
                             if (!result) state++;
                             break;
 
-                        case LoadingState.Elements:
-                            result = LoadElements(data, line);
+                        case LoadingState.Cells:
+                            result = LoadCells(data, line);
                             if (!result) state++;
                             break;
 
-                        case LoadingState.PointAndElementDataCount:
-                            return data;
+                        case LoadingState.NodeAndCellDataCount:
+                            result = LoadNodeAndCellComponentCount(data, line);
+                            state++;
+                            break;
+
+                        case LoadingState.NodeDataCountAndComponentCount:
+                            // 無視して読み飛ばす。
+                            state++;
+                            break;
+
+                        case LoadingState.NodeComponentLabelAndUnit:
+                            result = LoadNodeComponentLabelAndUnit(data, line);
+                            if (!result) state++;
+                            break;
+
+                        case LoadingState.NodeData:
+                            result = LoadNodeData(data, line);
+                            if (!result) state++;
+                            break;
+
+                        case LoadingState.CellDataCountAndComponentCount:
+                            // 無視して読み飛ばす。
+                            state++;
+                            break;
+
+                        case LoadingState.CellComponentLabelAndUnit:
+                            result = LoadCellComponentLabelAndUnit(data, line);
+                            if (!result) state++;
+                            break;
+
+                        case LoadingState.CellData:
+                            result = LoadCellData(data, line);
+                            if (!result)
+                            {
+                                return data;
+                            }
+                            break;
 
                         default:
                             break;
@@ -128,50 +163,55 @@ namespace MATVisualizer.Data
             /// <summary>
             /// 全節点数、全要素数を記述します。
             /// </summary>
-            PointAndElementCount,
+            NodeAndCellCount,
 
             /// <summary>
             /// 節点番号、X/Y/Z座標値を 1⾏1節点で記述します。
             /// </summary>
-            Points,
+            Nodes,
 
             /// <summary>
             /// 要素に関する定義を1⾏1要素で記述します。
             /// 材料番号は、要素の集合をでグループ分けするのに⽤います。
             /// </summary>
-            Elements,
+            Cells,
 
             /// <summary>
-            /// 節点データのデータ成分数と、それぞれの成分が「いくつの成分から構成されるか」 を記述します。
+            /// 節点データ、要素データの各成分数を記述します。
             /// </summary>
-            PointAndElementDataCount,
+            NodeAndCellDataCount,
+
+            /// <summary>
+            /// 節点データのデータ成分数と、それぞれの成分が「いくつの成分から構成されるか」を記述します。
+            /// </summary>
+            NodeDataCountAndComponentCount,
 
             /// <summary>
             /// 節点データ各成分のラベルと単位を指定します。
             /// この指定は省略することもできますが、指定しない場合でも区切りの ","（カンマ）が必ず必要になります。
             /// </summary>
-            PointDataLabelAndUnit,
+            NodeComponentLabelAndUnit,
 
             /// <summary>
             /// 1⾏1節点で、節点番号と対応する節点データを並べて記述します。
             /// </summary>
-            PointData,
+            NodeData,
 
             /// <summary>
-            /// 要素データのデータ成分数と、それぞれの成分が「いくつの成分から構成されるか」 を記述します。
+            /// 要素データのデータ成分数と、それぞれの成分が「いくつの成分から構成されるか」を記述します。
             /// </summary>
-            ElementAndElementDataCount,
+            CellDataCountAndComponentCount,
 
             /// <summary>
             /// 要素データ各成分のラベルと単位を指定します。
             /// この指定は省略することもできますが、指定しない場合でも区切りの ","（カンマ）が必ず必要になります。
             /// </summary>
-            ElementDataLabelAndUnit,
+            CellComponentLabelAndUnit,
 
             /// <summary>
-            /// 要素番号と対応する要素データを並べて記述します。
+            /// 1⾏1要素で、要素番号と対応する要素データを並べて記述します。
             /// </summary>
-            ElementData
+            CellData
         }
 
         /// <summary>
@@ -187,7 +227,7 @@ namespace MATVisualizer.Data
             {
                 int startIndex = 1;
 
-                // #の後が半角スペースの場合、読み込まないようにする。
+                // #の後の文字が半角スペースの場合、読み込まないようにする。
                 for (int i = 1; i < line.Length; i++)
                 {
                     if (line[i] == ' ')
@@ -265,9 +305,9 @@ namespace MATVisualizer.Data
         /// <returns>true:ステップ番号を読み込んだ</returns>
         private static bool LoadStepNumber(UDC data, string line)
         {
-            string[] splitedText = line.Split(' ');
+            string[] splitText = line.Split(' ');
 
-            if(splitedText[0] == "step1")
+            if(splitText[0] == "step1")
             {
                 return true;
             }
@@ -283,19 +323,19 @@ namespace MATVisualizer.Data
         /// <param name="data">読み込み先のUDCデータ</param>
         /// <param name="line">読み込むテキスト</param>
         /// <returns>true:全節点数と全要素数を読み込んだ</returns>
-        private static bool LoadPointAndElementCount(UDC data, string line)
+        private static bool LoadNodeAndCellCount(UDC data, string line)
         {
             if (line.Length < 3)
             {
                 return false;
             }
 
-            string[] splitedText = line.Split(' ');
+            string[] splitText = line.Split(' ');
 
-            if (splitedText.Length >= 2 && int.TryParse(splitedText[0], out int pointCount) && int.TryParse(splitedText[1], out int elementCount))
+            if (splitText.Length >= 2 && int.TryParse(splitText[0], out int pointCount) && int.TryParse(splitText[1], out int elementCount))
             {
-                data.PointCount = pointCount;
-                data.ElementCount = elementCount;
+                data.NodeCount = pointCount;
+                data.CellCount = elementCount;
                 return true;
             }
             else
@@ -310,20 +350,24 @@ namespace MATVisualizer.Data
         /// <param name="data">読み込み先のUDCデータ</param>
         /// <param name="line">読み込むテキスト</param>
         /// <returns>true:節点を読み込んだ</returns>
-        private static bool LoadPoints(UDC data, string line)
+        private static bool LoadNodes(UDC data, string line)
         {
-            if (data.Points == null)
+            if (data.Nodes == null)
                 return false;
 
-            string[] splitedText = line.Split(' ');
+            string[] splitText = line.Split(' ');
 
-            if (splitedText.Length >= 4 && int.TryParse(splitedText[0], out int pointNumber))
+            if (splitText.Length >= 4 && int.TryParse(splitText[0], out int pointNumber))
             {
-                if(float.TryParse(splitedText[1],out float x)
-                    && float.TryParse(splitedText[2], out float y)
-                    && float.TryParse(splitedText[3], out float z))
+                if(float.TryParse(splitText[1],out float x)
+                    && float.TryParse(splitText[2], out float y)
+                    && float.TryParse(splitText[3], out float z))
                 {
-                    data.Points[pointNumber - 1] = new System.Numerics.Vector3(x, y, z);
+                    data.Nodes[pointNumber - 1] = new UDCNode()
+                    {
+                        Coord = new System.Numerics.Vector3(x, y, z)
+                    };
+
                     return true;
                 }
                 else
@@ -343,26 +387,26 @@ namespace MATVisualizer.Data
         /// <param name="data">読み込み先のUDCデータ</param>
         /// <param name="line">読み込むテキスト</param>
         /// <returns>true:要素を読み込んだ</returns>
-        private static bool LoadElements(UDC data, string line)
+        private static bool LoadCells(UDC data, string line)
         {
-            if (data.Elements == null)
+            if (data.Cells == null)
                 return false;
 
-            string[] splitedText = line.Split(' ');
+            string[] splitText = line.Split(' ');
             int elementNumber, material;
-            UDCElementType type;
+            UDCCellType type;
 
             // 要素番号、要素の材料番号、種類を読み込む。
-            if (splitedText.Length >= 3)
+            if (splitText.Length >= 3)
             {
-                if (!int.TryParse(splitedText[0], out elementNumber))
+                if (!int.TryParse(splitText[0], out elementNumber))
                     return false;
 
-                if (!int.TryParse(splitedText[1], out material))
+                if (!int.TryParse(splitText[1], out material))
                     return false;
 
-                if (splitedText[2].Length >= 2)
-                    type = splitedText[2].ParseToUDCElementType();
+                if (splitText[2].Length >= 2)
+                    type = splitText[2].ParseToUDCCellType();
                 else
                     return false;
             }
@@ -374,16 +418,165 @@ namespace MATVisualizer.Data
             int pointCount = type.GetNumberOfValues();
 
             // 要素を構成する接点を読み込む。
-            if (splitedText.Length >= 3 + pointCount)
+            if (splitText.Length >= 3 + pointCount)
             {
                 int[] points = new int[pointCount];
 
                 for (int index = 0; index < pointCount; index++)
                 {
-                    points[index] = int.Parse(splitedText[3 + index]);
+                    points[index] = int.Parse(splitText[3 + index]);
                 }
 
-                data.Elements[elementNumber - 1] = new UDCElement(material, type, points);
+                data.Cells[elementNumber - 1] = new UDCCell(material, type, points);
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 節点のデータ成分数と要素のデータ成分数を読み込みます。存在しない場合や失敗した場合、falseを返します。
+        /// </summary>
+        /// <param name="data">読み込み先のUDCデータ</param>
+        /// <param name="line">読み込むテキスト</param>
+        /// <returns>true:データ成分数を読み込んだ</returns>
+        private static bool LoadNodeAndCellComponentCount(UDC data, string line)
+        {
+            string[] splitText = line.Split(' ');
+
+            if (int.TryParse(splitText[0], out int nodeDataCount))
+            {
+                data.NodeComponentCount = nodeDataCount;
+            }
+            else
+            {
+                return false;
+            }
+
+            if (int.TryParse(splitText[1], out int cellDataCount))
+            {
+                data.CellComponentCount = cellDataCount;
+            }
+            else
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// 節点のデータ各成分のラベルと単位を読み込みます。存在しない場合や失敗した場合、falseを返します。
+        /// </summary>
+        /// <param name="data">読み込み先のUDCデータ</param>
+        /// <param name="line">読み込むテキスト</param>
+        /// <returns>true:節点のデータ各成分のラベルと単位を読み込んだ</returns>
+        private static bool LoadNodeComponentLabelAndUnit(UDC data, string line)
+        {
+            //line.Replace(" ", String.Empty);
+            //string[] splitText = line.Split(',');
+
+            if (line.Contains(','))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 節点のデータを読み込みます。存在しない場合や失敗した場合、falseを返します。
+        /// </summary>
+        /// <param name="data">読み込み先のUDCデータ</param>
+        /// <param name="line">読み込むテキスト</param>
+        /// <returns>true:節点のデータを読み込んだ</returns>
+        private static bool LoadNodeData(UDC data, string line)
+        {
+            if (data.NodeComponentCount == 0)
+                return false;
+
+            string[] splitText = line.Split(' ');
+
+            if(splitText.Length >= 1 + data.NodeComponentCount)
+            {
+                if (!int.TryParse(splitText[0], out int number))
+                    return false;
+
+                float[] dataComponents = new float[data.NodeComponentCount];
+
+                for(int index = 0; index < data.NodeComponentCount; index++)
+                {
+                    if (float.TryParse(splitText[1 + index], out float component))
+                        dataComponents[index] = component;
+                    else
+                        return false;
+                }
+
+                data.Nodes[number - 1].Data = dataComponents;
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 要素のデータ各成分のラベルと単位を読み込みます。存在しない場合や失敗した場合、falseを返します。
+        /// </summary>
+        /// <param name="data">読み込み先のUDCデータ</param>
+        /// <param name="line">読み込むテキスト</param>
+        /// <returns>true:要素のデータ各成分のラベルと単位を読み込んだ</returns>
+        private static bool LoadCellComponentLabelAndUnit(UDC data, string line)
+        {
+            //line.Replace(" ", String.Empty);
+            //string[] splitText = line.Split(',');
+
+            if (line.Contains(','))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 要素のデータを読み込みます。存在しない場合や失敗した場合、falseを返します。
+        /// </summary>
+        /// <param name="data">読み込み先のUDCデータ</param>
+        /// <param name="line">読み込むテキスト</param>
+        /// <returns>true:要素のデータを読み込んだ</returns>
+        private static bool LoadCellData(UDC data, string line)
+        {
+            if (data.CellComponentCount == 0)
+                return false;
+
+            string[] splitText = line.Split(' ');
+
+            if (splitText.Length >= 1 + data.CellComponentCount)
+            {
+                if (!int.TryParse(splitText[0], out int number))
+                    return false;
+
+                float[] dataComponents = new float[data.CellComponentCount];
+
+                for (int index = 0; index < data.CellComponentCount; index++)
+                {
+                    if (float.TryParse(splitText[1 + index], out float component))
+                        dataComponents[index] = component;
+                    else
+                        return false;
+                }
+
+                data.Cells[number - 1].Data = dataComponents;
 
                 return true;
             }

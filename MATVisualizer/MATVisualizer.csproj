@@ -57,10 +57,11 @@
     <Compile Include="Data\UDC.cs" />
     <Compile Include="Data\UDCDataRepetitionType.cs" />
     <Compile Include="Data\UDCDataRepetitionTypeExt.cs" />
-    <Compile Include="Data\UDCElement.cs" />
-    <Compile Include="Data\UDCElementType.cs" />
-    <Compile Include="Data\UDCElementTypeExt.cs" />
+    <Compile Include="Data\UDCCell.cs" />
+    <Compile Include="Data\UDCCellType.cs" />
+    <Compile Include="Data\UDCCellTypeExt.cs" />
     <Compile Include="Data\UDCLoader.cs" />
+    <Compile Include="Data\UDCNode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -9,19 +9,21 @@ namespace MATVisualizer.Data
     /// <summary>
     /// UDCデータの要素です。
     /// </summary>
-    public class UDCElement
+    public class UDCCell
     {
         /// <summary>
-        /// UDCElementを材料（番号）と要素の種類および節点（番号）から初期化します。
+        /// UDCCellを材料（番号）と要素の種類および節点（番号）から初期化します。
         /// </summary>
-        /// <param name="type"></param>
-        /// <param name="values"></param>
-        public UDCElement(int material, UDCElementType type, params int[] values)
+        /// <param name="material">材料番号</param>
+        /// <param name="type">種類</param>
+        /// <param name="values">要素を構成する節点番号</param>
+        public UDCCell(int material, UDCCellType type, params int[] values)
         {
             if (values.Length != type.GetNumberOfValues())
                 throw new Exception("UDCElementTypeと与えられた節点の数が一致しません。");
 
-            ElementType = type;
+            MaterialNumber = material;
+            CellType = type;
             Values = values;
         }
 
@@ -33,11 +35,16 @@ namespace MATVisualizer.Data
         /// <summary>
         /// UDCElementの要素形状です。
         /// </summary>
-        public UDCElementType ElementType { get; protected set; }
+        public UDCCellType CellType { get; protected set; }
 
         /// <summary>
         /// UDCElementの節点（番号）です。
         /// </summary>
         public int[] Values { get; protected set; }
+
+        /// <summary>
+        /// 要素のデータです。
+        /// </summary>
+        public float[] Data { get; set; }
     }
 }

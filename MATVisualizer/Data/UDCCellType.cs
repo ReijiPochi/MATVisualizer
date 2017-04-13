@@ -9,7 +9,7 @@ namespace MATVisualizer.Data
     /// <summary>
     /// UDCデータの要素の種類を表します。
     /// </summary>
-    public enum UDCElementType
+    public enum UDCCellType
     {
         Point,
         Line,

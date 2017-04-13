@@ -36,33 +36,43 @@ namespace MATVisualizer.Data
         /// <summary>
         /// UDCデータの節点の数です。
         /// </summary>
-        public int PointCount { get; set; }
+        public int NodeCount { get; set; }
 
         /// <summary>
         /// UDCデータの要素の数です。
         /// </summary>
-        public int ElementCount { get; set; }
+        public int CellCount { get; set; }
+
+        /// <summary>
+        /// UDCデータの節点が持つデータ成分の数です。
+        /// </summary>
+        public int NodeComponentCount { get; set; }
+
+        /// <summary>
+        /// UDCデータの要素が持つデータ成分の数です。
+        /// </summary>
+        public int CellComponentCount { get; set; }
 
         /// <summary>
         /// UDCデータの節点です。
         /// </summary>
-        public Vector3[] Points { get; set; }
+        public UDCNode[] Nodes { get; set; }
 
         /// <summary>
         /// UDCデータの要素です。
         /// </summary>
-        public UDCElement[] Elements { get; set; }
+        public UDCCell[] Cells { get; set; }
 
         /// <summary>
         /// Points と Elements のメモリを確保します。
         /// </summary>
         public void InitializeArrayOfPointAndElement()
         {
-            if (PointCount != 0)
-                Points = new Vector3[PointCount];
+            if (NodeCount != 0)
+                Nodes = new UDCNode[NodeCount];
 
-            if (ElementCount != 0)
-                Elements = new UDCElement[ElementCount];
+            if (CellCount != 0)
+                Cells = new UDCCell[CellCount];
         }
     }
 }
