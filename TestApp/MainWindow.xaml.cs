@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
@@ -27,7 +28,10 @@ namespace TestApp
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            MATVisualizer.Data.UDCLoader.Load(@"AVS1.inp");
+            HwndSource source = (HwndSource)HwndSource.FromVisual(this);
+
+            MATVisualizer.Graphics.GraphicsCore.Initialize(source.Handle);
+            //MATVisualizer.Data.UDCLoader.Load(@"AVS1.inp");
         }
     }
 }

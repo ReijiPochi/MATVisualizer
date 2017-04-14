@@ -62,6 +62,7 @@
     <Compile Include="Data\UDCCellTypeExt.cs" />
     <Compile Include="Data\UDCLoader.cs" />
     <Compile Include="Data\UDCNode.cs" />
+    <Compile Include="Graphics\GraphicsCore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -84,5 +85,6 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
