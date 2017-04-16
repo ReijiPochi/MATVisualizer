@@ -28,7 +28,10 @@ namespace TestApp
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            HwndSource source = (HwndSource)HwndSource.FromVisual(this);
+            Window graphicsWindow = new Window();
+            graphicsWindow.Show();
+
+            HwndSource source = (HwndSource)HwndSource.FromVisual(graphicsWindow);
 
             MATVisualizer.Graphics.GraphicsCore.Initialize(source.Handle);
             //MATVisualizer.Data.UDCLoader.Load(@"AVS1.inp");

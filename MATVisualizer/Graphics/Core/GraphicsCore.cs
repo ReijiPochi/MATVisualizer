@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MATVisualizer.Graphics
+namespace MATVisualizer.Graphics.Core
 {
     public class GraphicsCore
     {

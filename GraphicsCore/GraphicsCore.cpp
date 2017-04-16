@@ -7,29 +7,118 @@
 
 #pragma comment( lib, "d3d11.lib" )
 
-
 extern "C"
 {
-	GraphicsCore gDemoApp;
-
 	//HRESULT InitWnd(HINSTANCE hInst, int nCmdShow);
 	//LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wp, LPARAM lp);
 
+	void InitializeDevice();
+
+	// デバイス等を初期化し、GraphicsCoreの機能を使用できるようにします。
+	// HWND handle : 描画結果を出力するウインドウのハンドル
 	CPPDLL_API int Initialize(HWND handle)
 	{
 		HINSTANCE hInst = GetModuleHandle(NULL);
 
-		if (handle)
+		CurrentGraphicsCore.hWnd = handle;
+
+		InitializeDevice();
+
+		// メインループ
+		MSG msg = { 0 };
+		while (WM_QUIT != msg.message)
 		{
-			return 114;
-		}
-		else
-		{
-			return 514;
+			if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+			{
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
+			else
+			{
+				// レンダーターゲットビューをクリア
+				float clearColor[4] = { 0.5f, 0.2f, 0.2f, 1.0f };
+				CurrentGraphicsCore.pDeviceContext->ClearRenderTargetView(CurrentGraphicsCore.pBackBuffer, clearColor);
+
+				// フリップ処理
+				CurrentGraphicsCore.pSwapChain->Present(1, 0);
+			}
 		}
 
-		// ウィンドウ初期化
-		//InitWnd(hInst, SW_SHOWNORMAL);
+		return 1;
+	}
+
+	
+	void InitializeDevice()
+	{
+		// ウィンドウサイズを取得
+		RECT rc;
+		GetClientRect(CurrentGraphicsCore.hWnd, &rc);
+		UINT width = rc.right - rc.left;
+		UINT height = rc.bottom - rc.top;
+
+		UINT createDeviceFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
+#if defined(DEBUG) || defined(_DEBUG)
+		createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+#endif
+
+		// 機能レベル
+		D3D_FEATURE_LEVEL featureLevels[] = {
+			D3D_FEATURE_LEVEL_11_0,
+			D3D_FEATURE_LEVEL_11_1,
+		};
+		UINT numFeatureLevels = sizeof(featureLevels) / sizeof(featureLevels[0]);
+
+		// スワップチェインの設定
+		DXGI_SWAP_CHAIN_DESC sd;
+		ZeroMemory(&sd, sizeof(sd));
+		sd.BufferCount = 1;
+		sd.BufferDesc.Width = width;
+		sd.BufferDesc.Height = height;
+		sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		sd.BufferDesc.RefreshRate.Numerator = 60;
+		sd.BufferDesc.RefreshRate.Denominator = 1;
+		sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		sd.OutputWindow = CurrentGraphicsCore.hWnd;
+		sd.SampleDesc.Count = 1;
+		sd.SampleDesc.Quality = 0;
+		sd.Windowed = TRUE;
+
+		D3D11CreateDeviceAndSwapChain(
+			NULL,
+			D3D_DRIVER_TYPE_HARDWARE,
+			NULL,
+			createDeviceFlags,
+			featureLevels,
+			numFeatureLevels,
+			D3D11_SDK_VERSION,
+			&sd,
+			&CurrentGraphicsCore.pSwapChain,
+			&CurrentGraphicsCore.pDevice,
+			&CurrentGraphicsCore.featureLevel,
+			&CurrentGraphicsCore.pDeviceContext);
+
+
+		// バックバッファーを取得
+		ID3D11Texture2D* pBackBuffer = NULL;
+		CurrentGraphicsCore.pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
+
+		// レンダーターゲットビューを生成
+		CurrentGraphicsCore.pDevice->CreateRenderTargetView(pBackBuffer, NULL, &CurrentGraphicsCore.pBackBuffer);
+		pBackBuffer -> Release();
+		pBackBuffer = NULL;
+		
+		// 出力マネージャにレンダーターゲットビューを設定
+		CurrentGraphicsCore.pDeviceContext->OMSetRenderTargets(1, &CurrentGraphicsCore.pBackBuffer, NULL);
+
+		// ビューポートの設定
+		D3D11_VIEWPORT vp;
+		vp.Width = (FLOAT)width;
+		vp.Height = (FLOAT)height;
+		vp.MinDepth = 0.0f;
+		vp.MaxDepth = 1.0f;
+		vp.TopLeftX = 0;
+		vp.TopLeftY = 0;
+		CurrentGraphicsCore.pDeviceContext->RSSetViewports(1, &vp);
 	}
 
 	//HRESULT InitWnd(HINSTANCE hInst, int nCmdShow)
@@ -54,7 +143,7 @@ extern "C"
 	//	}
 
 	//	// インスタンスハンドルを設定
-	//	gDemoApp.hInst = hInst;
+	//	graphicsCore.hInst = hInst;
 
 	//	// ウィンドウサイズの設定
 	//	RECT rc = { 0, 0, 800, 600 }; // 4 : 3
@@ -62,7 +151,7 @@ extern "C"
 	//	AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
 
 	//	// ウィンドウの生成
-	//	gDemoApp.hWnd = CreateWindow(
+	//	graphicsCore.hWnd = CreateWindow(
 	//		TEXT("AsDemoAppDx11"),
 	//		TEXT("Graphics Window"),
 	//		WS_OVERLAPPEDWINDOW,
@@ -74,13 +163,9 @@ extern "C"
 	//		NULL,
 	//		hInst,
 	//		NULL);
-	//	if (!gDemoApp.hWnd)
-	//	{
-	//		return E_FAIL;
-	//	}
 
 	//	// ウィンドウの表示設定
-	//	ShowWindow(gDemoApp.hWnd, nCmdShow);
+	//	ShowWindow(graphicsCore.hWnd, nCmdShow);
 
 	//	return S_OK;
 	//}

@@ -73,7 +73,7 @@ void	Render();
 //----------------------------------------------------------------------
 // Global Variables
 //----------------------------------------------------------------------
-GraphicsCore gDemoApp;
+GraphicsCore CurrentGraphicsCore;
 
 
 //----------------------------------------------------------------------
@@ -149,7 +149,7 @@ HRESULT InitWnd( HINSTANCE hInst, int nCmdShow )
 	}
 
 	// インスタンスハンドルを設定
-	gDemoApp.hInst = hInst;
+	CurrentGraphicsCore.hInst = hInst;
 
 	// ウィンドウサイズの設定
 	RECT rc = { 0, 0, 800, 600 }; // 4 : 3
@@ -157,7 +157,7 @@ HRESULT InitWnd( HINSTANCE hInst, int nCmdShow )
 	AdjustWindowRect( &rc, WS_OVERLAPPEDWINDOW, FALSE );
 
 	// ウィンドウの生成
-	gDemoApp.hWnd = CreateWindow(
+	CurrentGraphicsCore.hWnd = CreateWindow(
 		TEXT( "AsDemoAppDx11" ),
 		TEXT( "DirectX11 Sample Program" ),
 		WS_OVERLAPPEDWINDOW,
@@ -169,13 +169,13 @@ HRESULT InitWnd( HINSTANCE hInst, int nCmdShow )
 		NULL,
 		hInst,
 		NULL );
-	if ( !gDemoApp.hWnd )
+	if ( !CurrentGraphicsCore.hWnd )
 	{
 		return E_FAIL;
 	}
 
 	// ウィンドウの表示設定
-	ShowWindow( gDemoApp.hWnd, nCmdShow );
+	ShowWindow( CurrentGraphicsCore.hWnd, nCmdShow );
 
 	return S_OK;
 }
@@ -287,7 +287,7 @@ HRESULT InitDevice()
 
 	// ウィンドウサイズを取得
 	RECT rc;
-	GetClientRect( gDemoApp.hWnd, &rc );
+	GetClientRect( CurrentGraphicsCore.hWnd, &rc );
 	UINT width = rc.right - rc.left;
 	UINT height = rc.bottom - rc.top;
 
@@ -322,7 +322,7 @@ HRESULT InitDevice()
 	sd.BufferDesc.RefreshRate.Numerator = 60;
 	sd.BufferDesc.RefreshRate.Denominator = 1;
 	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	sd.OutputWindow = gDemoApp.hWnd;
+	sd.OutputWindow = CurrentGraphicsCore.hWnd;
 	sd.SampleDesc.Count = 1;
 	sd.SampleDesc.Quality = 0;
 	sd.Windowed = TRUE;
@@ -330,20 +330,20 @@ HRESULT InitDevice()
 	// デバイスとスワップチェインを作成する
 	for( UINT idx = 0; idx < numDriverTypes; idx++ )
 	{
-		gDemoApp.driverType = driverTypes[ idx ];
+		CurrentGraphicsCore.driverType = driverTypes[ idx ];
 		hr = D3D11CreateDeviceAndSwapChain(
 			NULL,
-			gDemoApp.driverType,
+			CurrentGraphicsCore.driverType,
 			NULL,
 			createDeviceFlags,
 			featureLevels,
 			numFeatureLevels,
 			D3D11_SDK_VERSION,
 			&sd,
-			&gDemoApp.pSwapChain,
-			&gDemoApp.pDevice,
-			&gDemoApp.featureLevel,
-			&gDemoApp.pDeviceContext );
+			&CurrentGraphicsCore.pSwapChain,
+			&CurrentGraphicsCore.pDevice,
+			&CurrentGraphicsCore.featureLevel,
+			&CurrentGraphicsCore.pDeviceContext );
 
 		if ( SUCCEEDED( hr ) )
 		{
@@ -359,14 +359,14 @@ HRESULT InitDevice()
 
 	// バックバッファ取得
 	ID3D11Texture2D* pBackBuffer = NULL;
-	hr = gDemoApp.pSwapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), (LPVOID*)&pBackBuffer );
+	hr = CurrentGraphicsCore.pSwapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), (LPVOID*)&pBackBuffer );
 	if ( FAILED( hr ) )
 	{
 		return hr;
 	}
 
 	// レンダーターゲットビューを生成
-	hr = gDemoApp.pDevice->CreateRenderTargetView( pBackBuffer, NULL, &gDemoApp.pRenderTargetView );
+	hr = CurrentGraphicsCore.pDevice->CreateRenderTargetView( pBackBuffer, NULL, &CurrentGraphicsCore.pRenderTargetView );
 	pBackBuffer->Release();
 	pBackBuffer = NULL;
 	if ( FAILED( hr ) )
@@ -375,7 +375,7 @@ HRESULT InitDevice()
 	}
 
 	// 出力マネージャにレンダーターゲットビューを設定
-	gDemoApp.pDeviceContext->OMSetRenderTargets( 1, &gDemoApp.pRenderTargetView, NULL ); 
+	CurrentGraphicsCore.pDeviceContext->OMSetRenderTargets( 1, &CurrentGraphicsCore.pRenderTargetView, NULL ); 
 
 	// ビューポートの設定
 	D3D11_VIEWPORT vp;
@@ -385,7 +385,7 @@ HRESULT InitDevice()
 	vp.MaxDepth = 1.0f;
 	vp.TopLeftX = 0;
 	vp.TopLeftY = 0;
-	gDemoApp.pDeviceContext->RSSetViewports( 1, &vp );
+	CurrentGraphicsCore.pDeviceContext->RSSetViewports( 1, &vp );
 
 	// 頂点シェーダをコンパイル
 	ID3DBlob* pVSBlob = NULL;
@@ -400,7 +400,7 @@ HRESULT InitDevice()
 	}
 
 	// 頂点シェーダ生成
-	hr = gDemoApp.pDevice->CreateVertexShader( pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &gDemoApp.pVS );
+	hr = CurrentGraphicsCore.pDevice->CreateVertexShader( pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &CurrentGraphicsCore.pVS );
 	if ( FAILED( hr ) )
 	{
 		pVSBlob->Release();
@@ -415,12 +415,12 @@ HRESULT InitDevice()
 	UINT numElements = sizeof( layout ) / sizeof( layout[0] );
 
 	// 入力レイアウトを生成
-	hr = gDemoApp.pDevice->CreateInputLayout(
+	hr = CurrentGraphicsCore.pDevice->CreateInputLayout(
 		layout,
 		numElements,
 		pVSBlob->GetBufferPointer(),
 		pVSBlob->GetBufferSize(),
-		&gDemoApp.pVertexLayout );
+		&CurrentGraphicsCore.pVertexLayout );
 	pVSBlob->Release();
 	pVSBlob = NULL;
 	if ( FAILED( hr ) )
@@ -429,7 +429,7 @@ HRESULT InitDevice()
 	}
 
 	// 入力アセンブラに入力レイアウトを設定
-	gDemoApp.pDeviceContext->IASetInputLayout( gDemoApp.pVertexLayout );
+	CurrentGraphicsCore.pDeviceContext->IASetInputLayout( CurrentGraphicsCore.pVertexLayout );
 
 	// ジオメトリシェーダコンパイル
 	ID3DBlob* pGSBlob = NULL;
@@ -445,11 +445,11 @@ HRESULT InitDevice()
 	}
 
 	// ジオメトリシェーダを生成
-	hr = gDemoApp.pDevice->CreateGeometryShader(
+	hr = CurrentGraphicsCore.pDevice->CreateGeometryShader(
 		pGSBlob->GetBufferPointer(),
 		pGSBlob->GetBufferSize(),
 		NULL,
-		&gDemoApp.pGS );
+		&CurrentGraphicsCore.pGS );
 	pGSBlob->Release();
 	pGSBlob = NULL;
 	if ( FAILED( hr ) )
@@ -471,11 +471,11 @@ HRESULT InitDevice()
 	}
 
 	// ピクセルシェーダ生成
-	hr = gDemoApp.pDevice->CreatePixelShader(
+	hr = CurrentGraphicsCore.pDevice->CreatePixelShader(
 		pPSBlob->GetBufferPointer(),
 		pPSBlob->GetBufferSize(),
 		NULL,
-		&gDemoApp.pPS );
+		&CurrentGraphicsCore.pPS );
 	pPSBlob->Release();
 	pPSBlob = NULL;
 	if ( FAILED( hr ) )
@@ -504,7 +504,7 @@ HRESULT InitDevice()
 	initData.pSysMem = vertices;
 
 	// 頂点バッファ生成
-	hr = gDemoApp.pDevice->CreateBuffer( &bd, &initData, &gDemoApp.pVertexBuffer );
+	hr = CurrentGraphicsCore.pDevice->CreateBuffer( &bd, &initData, &CurrentGraphicsCore.pVertexBuffer );
 	if ( FAILED( hr ) )
 	{
 		return hr;
@@ -513,10 +513,10 @@ HRESULT InitDevice()
 	// 入力アセンブラに頂点バッファを設定
 	UINT stride = sizeof( CustomVertex );
 	UINT offset = 0;
-	gDemoApp.pDeviceContext->IASetVertexBuffers( 0, 1, &gDemoApp.pVertexBuffer, &stride, &offset );
+	CurrentGraphicsCore.pDeviceContext->IASetVertexBuffers( 0, 1, &CurrentGraphicsCore.pVertexBuffer, &stride, &offset );
 
 	// プリミティブの種類を設定
-	gDemoApp.pDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+	CurrentGraphicsCore.pDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
 	return S_OK;
 }
@@ -526,49 +526,49 @@ HRESULT InitDevice()
 //-----------------------------------------------------------------------
 void CleanupDevice()
 {
-	if ( gDemoApp.pDeviceContext )
+	if ( CurrentGraphicsCore.pDeviceContext )
 	{
-		gDemoApp.pDeviceContext->ClearState();
+		CurrentGraphicsCore.pDeviceContext->ClearState();
 	}
-	if ( gDemoApp.pVertexBuffer )
+	if ( CurrentGraphicsCore.pVertexBuffer )
 	{
-		gDemoApp.pVertexBuffer->Release();
-		gDemoApp.pVertexBuffer = NULL;
+		CurrentGraphicsCore.pVertexBuffer->Release();
+		CurrentGraphicsCore.pVertexBuffer = NULL;
 	}
-	if ( gDemoApp.pVertexLayout )
+	if ( CurrentGraphicsCore.pVertexLayout )
 	{
-		gDemoApp.pVertexLayout->Release();
-		gDemoApp.pVertexLayout = NULL;
+		CurrentGraphicsCore.pVertexLayout->Release();
+		CurrentGraphicsCore.pVertexLayout = NULL;
 	}
-	if ( gDemoApp.pVS )
+	if ( CurrentGraphicsCore.pVS )
 	{
-		gDemoApp.pVS->Release();
-		gDemoApp.pVS = NULL;
+		CurrentGraphicsCore.pVS->Release();
+		CurrentGraphicsCore.pVS = NULL;
 	}
-	if ( gDemoApp.pPS )
+	if ( CurrentGraphicsCore.pPS )
 	{
-		gDemoApp.pPS->Release();
-		gDemoApp.pPS = NULL;
+		CurrentGraphicsCore.pPS->Release();
+		CurrentGraphicsCore.pPS = NULL;
 	}
-	if ( gDemoApp.pRenderTargetView )
+	if ( CurrentGraphicsCore.pRenderTargetView )
 	{
-		gDemoApp.pRenderTargetView->Release();
-		gDemoApp.pRenderTargetView = NULL;
+		CurrentGraphicsCore.pRenderTargetView->Release();
+		CurrentGraphicsCore.pRenderTargetView = NULL;
 	}
-	if ( gDemoApp.pSwapChain )
+	if ( CurrentGraphicsCore.pSwapChain )
 	{
-		gDemoApp.pSwapChain->Release();
-		gDemoApp.pSwapChain = NULL;
+		CurrentGraphicsCore.pSwapChain->Release();
+		CurrentGraphicsCore.pSwapChain = NULL;
 	}
-	if ( gDemoApp.pDeviceContext )
+	if ( CurrentGraphicsCore.pDeviceContext )
 	{
-		gDemoApp.pDeviceContext->Release();
-		gDemoApp.pDeviceContext = NULL;
+		CurrentGraphicsCore.pDeviceContext->Release();
+		CurrentGraphicsCore.pDeviceContext = NULL;
 	}
-	if ( gDemoApp.pDevice )
+	if ( CurrentGraphicsCore.pDevice )
 	{
-		gDemoApp.pDevice->Release();
-		gDemoApp.pDevice = NULL;
+		CurrentGraphicsCore.pDevice->Release();
+		CurrentGraphicsCore.pDevice = NULL;
 	}
 }
 
@@ -579,14 +579,14 @@ void Render()
 {
 	// レンダーターゲットビューをクリア
 	float clearColor[ 4 ] = { 0.3f, 0.3f, 1.0f, 1.0f };
-	gDemoApp.pDeviceContext->ClearRenderTargetView( gDemoApp.pRenderTargetView, clearColor );
+	CurrentGraphicsCore.pDeviceContext->ClearRenderTargetView( CurrentGraphicsCore.pRenderTargetView, clearColor );
 
 	// シェーダを設定して描画
-	gDemoApp.pDeviceContext->VSSetShader( gDemoApp.pVS, NULL, 0 );
-	gDemoApp.pDeviceContext->GSSetShader( gDemoApp.pGS, NULL, 0 );
-	gDemoApp.pDeviceContext->PSSetShader( gDemoApp.pPS, NULL, 0 );
-	gDemoApp.pDeviceContext->Draw( 3, 0 );
+	CurrentGraphicsCore.pDeviceContext->VSSetShader( CurrentGraphicsCore.pVS, NULL, 0 );
+	CurrentGraphicsCore.pDeviceContext->GSSetShader( CurrentGraphicsCore.pGS, NULL, 0 );
+	CurrentGraphicsCore.pDeviceContext->PSSetShader( CurrentGraphicsCore.pPS, NULL, 0 );
+	CurrentGraphicsCore.pDeviceContext->Draw( 3, 0 );
 
 	// フリップ処理
-	gDemoApp.pSwapChain->Present( 0, 0 );		
+	CurrentGraphicsCore.pSwapChain->Present( 0, 0 );		
 }
