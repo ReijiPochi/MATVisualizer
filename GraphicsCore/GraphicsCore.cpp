@@ -16,7 +16,7 @@ extern "C"
 
 	// デバイス等を初期化し、GraphicsCoreの機能を使用できるようにします。
 	// HWND handle : 描画結果を出力するウインドウのハンドル
-	CPPDLL_API int Initialize(HWND handle)
+	DLL_API int Initialize(HWND handle)
 	{
 		HINSTANCE hInst = GetModuleHandle(NULL);
 

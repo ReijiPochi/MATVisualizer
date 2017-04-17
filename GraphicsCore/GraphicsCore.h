@@ -1,5 +1,6 @@
 #pragma once
 
+#include "DLL.h"
 #include <windows.h>
 #include <cstdio>
 #include <d3d11_4.h>
@@ -23,9 +24,7 @@ struct GraphicsCore
 
 extern "C"
 {
-#define CPPDLL_API __declspec(dllexport)
-
 	static GraphicsCore CurrentGraphicsCore;
 
-	CPPDLL_API int Initialize(HWND handle);
+	DLL_API int Initialize(HWND handle);
 }

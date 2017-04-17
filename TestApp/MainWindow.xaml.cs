@@ -33,7 +33,7 @@ namespace TestApp
 
             HwndSource source = (HwndSource)HwndSource.FromVisual(graphicsWindow);
 
-            MATVisualizer.Graphics.GraphicsCore.Initialize(source.Handle);
+            MATVisualizer.Graphics.Core.GraphicsCore.Initialize(source.Handle);
             //MATVisualizer.Data.UDCLoader.Load(@"AVS1.inp");
         }
     }
