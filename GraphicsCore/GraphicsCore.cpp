@@ -23,7 +23,7 @@ extern "C"
 		CurrentGraphicsCore.hWnd = handle;
 
 		InitializeDevice();
-
+		E_FAIL
 		// ƒƒCƒ“ƒ‹[ƒv
 		MSG msg = { 0 };
 		while (WM_QUIT != msg.message)

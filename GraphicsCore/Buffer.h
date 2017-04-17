@@ -5,5 +5,5 @@
 
 extern "C"
 {
-	DLL_API HRESULT BufferCreat();
+	DLL_API HRESULT Buffer_Create();
 }
