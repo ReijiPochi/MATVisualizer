@@ -72,8 +72,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>E:\GitHub\MATVisualizer\GraphicsCore;$(IncludePath)</IncludePath>
-    <LibraryPath>E:\GitHub\MATVisualizer\GraphicsCore;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\GraphicsCore;$(IncludePath)</IncludePath>
+    <LibraryPath>..r\GraphicsCore;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>

@@ -1,6 +1,11 @@
 #include <windows.h>
 #include <cstdio>
+#include <future>
+
 #include <GraphicsCore.h>
+#include <GraphicsObject.h>
+
+using namespace std;
 
 HRESULT InitWnd(HINSTANCE hInst, int nCmdShow);
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wp, LPARAM lp);
@@ -13,7 +18,33 @@ void main()
 	printf("ModuleHandle : %x \n", CurrentGraphicsCore.hInst);
 	printf("WindowHandle : %x \n", CurrentGraphicsCore.hWnd);
 
-	Initialize(CurrentGraphicsCore.hWnd);
+	auto graphicsThread = thread(Initialize, CurrentGraphicsCore.hWnd);
+	//Initialize(CurrentGraphicsCore.hWnd);
+
+	printf("Initialized GraphicsCore \n");
+
+	GraphicsObjectDescription goDesc;
+	ZeroMemory(&goDesc, sizeof(goDesc));
+
+	int id = GraphicsObject_Create(goDesc);
+
+	printf("A Object was generated. : %d \n", id);
+
+	MSG msg = { 0 };
+	while (WM_QUIT != msg.message)
+	{
+		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+		else
+		{
+
+		}
+	}
+
+	graphicsThread.join();
 
 	return;
 }

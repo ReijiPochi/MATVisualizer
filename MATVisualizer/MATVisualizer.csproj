@@ -62,9 +62,13 @@
     <Compile Include="Data\UDCCellTypeExt.cs" />
     <Compile Include="Data\UDCLoader.cs" />
     <Compile Include="Data\UDCNode.cs" />
+    <Compile Include="Graphics\Core\BindFlag.cs" />
     <Compile Include="Graphics\Core\Buffer.cs" />
+    <Compile Include="Graphics\Core\BufferDescription.cs" />
+    <Compile Include="Graphics\Core\CPUAccessFlag.cs" />
     <Compile Include="Graphics\Core\GraphicsCore.cs" />
     <Compile Include="Graphics\Core\GraphicsObject.cs" />
+    <Compile Include="Graphics\Core\Usage.cs" />
     <Compile Include="Graphics\Object3D.cs" />
     <Compile Include="HRESULT.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">

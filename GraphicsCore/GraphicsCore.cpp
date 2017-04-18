@@ -21,9 +21,9 @@ extern "C"
 		HINSTANCE hInst = GetModuleHandle(NULL);
 
 		CurrentGraphicsCore.hWnd = handle;
-
+		
 		InitializeDevice();
-		E_FAIL
+		
 		// メインループ
 		MSG msg = { 0 };
 		while (WM_QUIT != msg.message)
@@ -36,7 +36,7 @@ extern "C"
 			else
 			{
 				// レンダーターゲットビューをクリア
-				float clearColor[4] = { 0.5f, 0.2f, 0.2f, 1.0f };
+				float clearColor[4] = { 0.7f, 0.2f, 0.2f, 1.0f };
 				CurrentGraphicsCore.pDeviceContext->ClearRenderTargetView(CurrentGraphicsCore.pBackBuffer, clearColor);
 
 				// フリップ処理
