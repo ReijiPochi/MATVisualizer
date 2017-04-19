@@ -7,18 +7,19 @@
 
 using namespace std;
 
-HRESULT InitWnd(HINSTANCE hInst, int nCmdShow);
+HRESULT InitWnd(HINSTANCE hInst, int nCmdShow, HWND* hWnd);
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wp, LPARAM lp);
 
 void main()
 {
 	HINSTANCE hInst = GetModuleHandle(NULL);
-	InitWnd(hInst, SW_SHOWNORMAL);
+	HWND hWnd;
+	InitWnd(hInst, SW_SHOWNORMAL, &hWnd);
 
-	printf("ModuleHandle : %x \n", CurrentGraphicsCore.hInst);
-	printf("WindowHandle : %x \n", CurrentGraphicsCore.hWnd);
+	//printf("ModuleHandle : %x \n", GraphicsCore::hInst);
+	//printf("WindowHandle : %x \n", GraphicsCore::hWnd);
 
-	auto graphicsThread = thread(Initialize, CurrentGraphicsCore.hWnd);
+	auto graphicsThread = thread(Initialize, hWnd);
 	//Initialize(CurrentGraphicsCore.hWnd);
 
 	printf("Initialized GraphicsCore \n");
@@ -31,6 +32,7 @@ void main()
 	printf("A Object was generated. : %d \n", id);
 
 	MSG msg = { 0 };
+	bool debuging = true;
 	while (WM_QUIT != msg.message)
 	{
 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -40,7 +42,17 @@ void main()
 		}
 		else
 		{
+			if (debuging)
+			{
+				//char command[1];
+				//scanf("%1c", command);
 
+				//if (command[0] == 'e')
+				//{
+				//	debuging = false;
+				//	printf("デバッグモードを終了しました。");
+				//}
+			}
 		}
 	}
 
@@ -49,7 +61,7 @@ void main()
 	return;
 }
 
-HRESULT InitWnd(HINSTANCE hInst, int nCmdShow)
+HRESULT InitWnd(HINSTANCE hInst, int nCmdShow, HWND* hWnd)
 {
 	// 拡張ウィンドウクラスの登録
 	WNDCLASSEX wc;
@@ -70,16 +82,13 @@ HRESULT InitWnd(HINSTANCE hInst, int nCmdShow)
 		return E_FAIL;
 	}
 
-	// インスタンスハンドルを設定
-	CurrentGraphicsCore.hInst = hInst;
-
 	// ウィンドウサイズの設定
 	RECT rc = { 0, 0, 800, 600 }; // 4 : 3
 								  //RECT rc = { 0, 0, 800, 450 }; // 16 : 9
 	AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
 
 	// ウィンドウの生成
-	CurrentGraphicsCore.hWnd = CreateWindow(
+	*hWnd = CreateWindow(
 		TEXT("TestApp"),
 		TEXT("Graphics Window"),
 		WS_OVERLAPPEDWINDOW,
@@ -93,7 +102,7 @@ HRESULT InitWnd(HINSTANCE hInst, int nCmdShow)
 		NULL);
 
 	// ウィンドウの表示設定
-	ShowWindow(CurrentGraphicsCore.hWnd, nCmdShow);
+	ShowWindow(*hWnd, nCmdShow);
 
 	return S_OK;
 }
