@@ -9,7 +9,7 @@ namespace MATVisualizer.Graphics.Core
 {
     public class GraphicsCore
     {
-        [DllImport("GraphicsCore.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("GraphicsCore.dll", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern int Initialize(IntPtr handle);
     }
 }

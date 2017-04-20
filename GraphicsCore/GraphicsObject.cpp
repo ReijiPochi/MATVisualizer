@@ -6,6 +6,36 @@
 
 #pragma comment(lib, "d3dcompiler.lib")
 
+UINT GetSizeOfVertexType(VertexType type)
+{
+	switch (type)
+	{
+	case VertexType_Shape:
+		return BYTES_INPUT_ELEMENTS_SHAPE;
+
+	case VertexType_ShapeAndValue:
+		return BYTES_INPUT_ELEMENTS_SHAPE_AND_VALUE;
+
+	default:
+		return 0;
+	}
+}
+
+UINT GetElementCountOfVertexType(VertexType type)
+{
+	switch (type)
+	{
+	case VertexType_Shape:
+		return 1;
+
+	case VertexType_ShapeAndValue:
+		return 2;
+
+	default:
+		return 0;
+	}
+}
+
 int GraphicsObject::Create(GraphicsObjectDescription desc)
 {
 	while (!GraphicsCore::Ready);
@@ -15,11 +45,55 @@ int GraphicsObject::Create(GraphicsObjectDescription desc)
 	if (id < 0)
 		return -1;
 
-	GraphicsObject* go = new GraphicsObject();
+	GraphicsCore::objects[id] = new GraphicsObject();
 
-	GenerateVertexShaderAndInputLayout(&(go->pVertexShader), &(go->pInputLayout));
+	GenerateVertexShaderAndInputLayout(desc, &(GraphicsCore::objects[id]->pVertexShader), &(GraphicsCore::objects[id]->pInputLayout));
+	GenerateGeometryShader(&GraphicsCore::objects[id]->pGeometryShader);
+	GeneratePixelShader(&GraphicsCore::objects[id]->pPixelShader);
 
-	objects[id] = go;
+	GraphicsCore::objects[id]->primitiveTopology = desc.primitiveTopology;
+	GraphicsCore::objects[id]->vertexType = desc.vertexType;
+
+	GraphicsCore::objects[id]->isLocking = false;
+
+	return id;
+}
+
+HRESULT GraphicsObject::SetVertices(void* data, UINT length)
+{
+	// 頂点バッファの設定
+	D3D11_BUFFER_DESC bd;
+	ZeroMemory(&bd, sizeof(bd));
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bd.CPUAccessFlags = 0;
+
+	switch (vertexType)
+	{
+	case VertexType_Shape:
+		bd.ByteWidth = sizeof(VertexData_Shape) * length;
+		break;
+
+	case VertexType_ShapeAndValue:
+		bd.ByteWidth = sizeof(VertexData_ShapeAndValue) * length;
+		break;
+
+	default:
+		break;
+	}
+
+	// サブリソースの設定
+	D3D11_SUBRESOURCE_DATA initData;
+	ZeroMemory(&initData, sizeof(initData));
+	initData.pSysMem = data;
+
+	// 頂点バッファ生成
+	if (pVertexBuffer != NULL)
+	{
+		pVertexBuffer->Release();
+		pVertexBuffer = NULL;
+	}
+	return GraphicsCore::pDevice->CreateBuffer(&bd, &initData, &pVertexBuffer);
 }
 
 // 使用できるオブジェクトスロットを検索します。
@@ -27,7 +101,7 @@ int GraphicsObject::GetNewObjectID()
 {
 	for (int index = 0; index < GRAPHICS_OBJECT_MAX_COUNT; index++)
 	{
-		if (objects[index] == NULL)
+		if (GraphicsCore::objects[index] == NULL)
 		{
 			return index;
 		}
@@ -36,25 +110,44 @@ int GraphicsObject::GetNewObjectID()
 	return -1;
 }
 
-HRESULT GraphicsObject::GenerateVertexShaderAndInputLayout(ID3D11VertexShader** ppVS, ID3D11InputLayout** ppinputLayout)
+HRESULT GraphicsObject::GenerateVertexShaderAndInputLayout(GraphicsObjectDescription desc, ID3D11VertexShader** ppVS, ID3D11InputLayout** ppinputLayout)
 {
 	HRESULT result = S_OK;
 
 	ID3DBlob* pVSBlob = NULL;
 	result = CompileShaderFromFile("Resources/Effects/Sample.fx", "VSFunc", "vs_5_0", &pVSBlob);
-
-	result = GraphicsCore::pDevice->CreateVertexShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, ppVS);
-	if (FAILED(result))
+	if (FAILED(result) && pVSBlob != NULL)
 	{
 		pVSBlob->Release();
 		pVSBlob = NULL;
 		return result;
 	}
 
-	D3D11_INPUT_ELEMENT_DESC layout[] = {
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	};
-	UINT numElements = sizeof(layout) / sizeof(layout[0]);
+	result = GraphicsCore::pDevice->CreateVertexShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, ppVS);
+	if (FAILED(result) && pVSBlob != NULL)
+	{
+		pVSBlob->Release();
+		pVSBlob = NULL;
+		return result;
+	}
+
+	D3D11_INPUT_ELEMENT_DESC *layout;
+
+	switch (desc.vertexType)
+	{
+	case VertexType_Shape:
+		layout = INPUT_ELEMENTS_SHAPE;
+		break;
+
+	case VertexType_ShapeAndValue:
+		layout = INPUT_ELEMENTS_SHAPE_AND_VALUE;
+		break;
+
+	default:
+		break;
+	}
+
+	UINT numElements = GetElementCountOfVertexType(desc.vertexType);
 
 	// 入力レイアウトを生成
 	result = GraphicsCore::pDevice->CreateInputLayout(
@@ -67,10 +160,47 @@ HRESULT GraphicsObject::GenerateVertexShaderAndInputLayout(ID3D11VertexShader** 
 	pVSBlob->Release();
 	pVSBlob = NULL;
 
-	if (FAILED(result))
+	return result;
+}
+
+HRESULT GraphicsObject::GenerateGeometryShader(ID3D11GeometryShader** ppGS)
+{
+	HRESULT result;
+
+	ID3DBlob* pGSBlob = NULL;
+	result = CompileShaderFromFile("Resources/Effects/Sample.fx", "GSFunc", "gs_5_0", &pGSBlob);
+	if(FAILED(result) && pGSBlob != NULL)
 	{
+		pGSBlob->Release();
+		pGSBlob = NULL;
 		return result;
 	}
+
+	result = GraphicsCore::pDevice->CreateGeometryShader(pGSBlob->GetBufferPointer(), pGSBlob->GetBufferSize(), NULL, ppGS);
+
+	pGSBlob->Release();
+	pGSBlob = NULL;
+
+	return result;
+}
+
+HRESULT GraphicsObject::GeneratePixelShader(ID3D11PixelShader** ppPS)
+{
+	HRESULT result;
+
+	ID3DBlob* pPSBlob = NULL;
+	result = CompileShaderFromFile("Resources/Effects/Sample.fx", "PSFunc", "ps_5_0", &pPSBlob);
+	if (FAILED(result) && pPSBlob != NULL)
+	{
+		pPSBlob->Release();
+		pPSBlob = NULL;
+		return result;
+	}
+
+	result = GraphicsCore::pDevice->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, ppPS);
+
+	pPSBlob->Release();
+	pPSBlob = NULL;
 
 	return result;
 }
@@ -141,4 +271,9 @@ HRESULT GraphicsObject::CompileShaderFromFile(char* pFileName, LPCSTR pEntryPoin
 DLL_API int GraphicsObject_Create(GraphicsObjectDescription desc)
 {
 	return GraphicsObject::Create(desc);
+}
+
+DLL_API HRESULT GraphicsObject_SetVertices(int objectID, void* data, UINT length)
+{
+	return GraphicsCore::objects[objectID]->SetVertices(data, length);
 }

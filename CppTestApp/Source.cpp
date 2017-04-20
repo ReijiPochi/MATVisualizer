@@ -4,6 +4,7 @@
 
 #include <GraphicsCore.h>
 #include <GraphicsObject.h>
+#include <DataTypesDefinition.h>
 
 using namespace std;
 
@@ -26,10 +27,32 @@ void main()
 
 	GraphicsObjectDescription goDesc;
 	ZeroMemory(&goDesc, sizeof(goDesc));
+	goDesc.vertexType = VertexType_ShapeAndValue;
+	goDesc.primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 	int id = GraphicsObject_Create(goDesc);
+	printf("A Object was generated. ID : %d \n", id);
 
-	printf("A Object was generated. : %d \n", id);
+	VertexData_ShapeAndValue vertices[]
+	{
+		{Vector3(0.0,0.0,0.0), 0},
+		{Vector3(0.0,1.0,0.0), 1},
+		{Vector3(1.0,0.0,0.0), 3}
+	};
+
+	GraphicsObject_SetVertices(id, vertices, 3);
+
+	id = GraphicsObject_Create(goDesc);
+	printf("A Object was generated. ID : %d \n", id);
+
+	VertexData_ShapeAndValue vertices2[]
+	{
+		{ Vector3(0.0,0.0,0.0), 0 },
+		{ Vector3(0.0,-1.0,0.0), 1 },
+		{ Vector3(-1.0,0.0,0.0), 5 }
+	};
+
+	GraphicsObject_SetVertices(id, vertices2, 3);
 
 	MSG msg = { 0 };
 	bool debuging = true;

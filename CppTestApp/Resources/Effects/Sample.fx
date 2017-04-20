@@ -9,7 +9,8 @@
 ////////////////////////////////////////////////////////////////////////
 struct VSInput
 {
-	float4 Position : POSITION;
+	float4 Position : SV_Position;
+	uint dataIndex : GC_DataIndex;
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -17,7 +18,7 @@ struct VSInput
 ////////////////////////////////////////////////////////////////////////
 struct GSPSInput
 {
-	float4 Position : SV_POSITION;
+	float4 Position : SV_Position;
 };
 
 //----------------------------------------------------------------------
@@ -30,6 +31,7 @@ GSPSInput VSFunc( VSInput input )
 
 	// ‚»‚Ì‚Ü‚Ü‘—‚é
 	output.Position = input.Position;
+	output.Position.x *= (1 - input.dataIndex * 0.1);
 
 	return output;
 }
