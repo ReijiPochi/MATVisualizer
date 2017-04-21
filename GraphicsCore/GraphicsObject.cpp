@@ -45,14 +45,21 @@ int GraphicsObject::Create(GraphicsObjectDescription desc)
 	if (id < 0)
 		return -1;
 
-	GraphicsCore::objects[id] = new GraphicsObject();
+	GraphicsObject *go = new GraphicsObject();
 
-	GenerateVertexShaderAndInputLayout(desc, &(GraphicsCore::objects[id]->pVertexShader), &(GraphicsCore::objects[id]->pInputLayout));
-	GenerateGeometryShader(&GraphicsCore::objects[id]->pGeometryShader);
-	GeneratePixelShader(&GraphicsCore::objects[id]->pPixelShader);
+	GenerateVertexShaderAndInputLayout(desc, &(go->pVertexShader), &(go->pInputLayout));
+	GenerateGeometryShader(&go->pGeometryShader);
+	GeneratePixelShader(&go->pPixelShader);
 
-	GraphicsCore::objects[id]->primitiveTopology = desc.primitiveTopology;
-	GraphicsCore::objects[id]->vertexType = desc.vertexType;
+	if (desc.vertexType == VertexType_ShapeAndValue)
+	{
+		
+	}
+
+	go->primitiveTopology = desc.primitiveTopology;
+	go->vertexType = desc.vertexType;
+
+	GraphicsCore::objects[id] = go;
 
 	GraphicsCore::objects[id]->isLocking = false;
 
@@ -96,12 +103,26 @@ HRESULT GraphicsObject::SetVertices(void* data, UINT length)
 	return GraphicsCore::pDevice->CreateBuffer(&bd, &initData, &pVertexBuffer);
 }
 
+void GraphicsObject::Dispose()
+{
+	isLocking = true;
+
+	ReleaseIUnknown(pVertexBuffer);
+	ReleaseIUnknown(pIndexBuffer);
+	ReleaseIUnknown(pVertexShader);
+	ReleaseIUnknown(pGeometryShader);
+	ReleaseIUnknown(pPixelShader);
+	ReleaseIUnknown(pInputLayout);
+
+	GraphicsCore::objects[objectID] = nullptr;
+}
+
 // 使用できるオブジェクトスロットを検索します。
 int GraphicsObject::GetNewObjectID()
 {
 	for (int index = 0; index < GRAPHICS_OBJECT_MAX_COUNT; index++)
 	{
-		if (GraphicsCore::objects[index] == NULL)
+		if (GraphicsCore::objects[index] == nullptr)
 		{
 			return index;
 		}

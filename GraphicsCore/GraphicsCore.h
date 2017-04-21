@@ -22,9 +22,13 @@ public:
 	static IDXGISwapChain*			pSwapChain;				// スワップチェイン
 	static ID3D11RenderTargetView*	pBackBuffer;			// バックバッファ
 	static void Render();
+	static void Release();
 };
+
+void ReleaseIUnknown(IUnknown* target);
 
 extern "C"
 {
 	DLL_API int Initialize(HWND handle);
+	DLL_API void Finalize();
 }

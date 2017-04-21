@@ -36,9 +36,9 @@ class GraphicsObject
 public:
 	static int Create(GraphicsObjectDescription desc);
 	HRESULT SetVertices(void* data, UINT length);
+	void Dispose();
 	int objectID;
 	bool isLocking = true;
-	bool isDrawing = false;
 	VertexType vertexType;
 	D3D11_PRIMITIVE_TOPOLOGY primitiveTopology;
 	ID3D11Buffer* pVertexBuffer;
