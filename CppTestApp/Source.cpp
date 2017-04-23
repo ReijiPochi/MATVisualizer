@@ -36,23 +36,11 @@ void main()
 	VertexData_ShapeAndValue vertices[]
 	{
 		{Vector3(0.0,0.0,0.0), 0},
-		{Vector3(0.0,1.0,0.0), 1},
-		{Vector3(1.0,0.0,0.0), 3}
+		{Vector3(0.0,1.0,0.0), 2},
+		{Vector3(1.0,0.0,0.0), 5},
 	};
 
 	GraphicsObject_SetVertices(id, vertices, 3);
-
-	id = GraphicsObject_Create(goDesc);
-	printf("A Object was generated. ID : %d \n", id);
-
-	VertexData_ShapeAndValue vertices2[]
-	{
-		{ Vector3(0.0,0.0,0.0), 0 },
-		{ Vector3(0.0,-1.0,0.0), 1 },
-		{ Vector3(-1.0,0.0,0.0), 5 }
-	};
-
-	GraphicsObject_SetVertices(id, vertices2, 3);
 
 	MSG msg = { 0 };
 	bool debuging = true;
@@ -79,6 +67,7 @@ void main()
 		}
 	}
 
+	Finalize();
 	graphicsThread.join();
 
 	return;
@@ -114,7 +103,7 @@ HRESULT InitWnd(HINSTANCE hInst, int nCmdShow, HWND* hWnd)
 	*hWnd = CreateWindow(
 		TEXT("TestApp"),
 		TEXT("Graphics Window"),
-		WS_OVERLAPPEDWINDOW,
+		WS_POPUP,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
 		rc.right - rc.left,

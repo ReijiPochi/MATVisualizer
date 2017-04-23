@@ -137,18 +137,24 @@ HRESULT GraphicsObject::GenerateVertexShaderAndInputLayout(GraphicsObjectDescrip
 
 	ID3DBlob* pVSBlob = NULL;
 	result = CompileShaderFromFile("Resources/Effects/Sample.fx", "VSFunc", "vs_5_0", &pVSBlob);
-	if (FAILED(result) && pVSBlob != NULL)
+	if (FAILED(result))
 	{
-		pVSBlob->Release();
-		pVSBlob = NULL;
+		if (pVSBlob != NULL)
+		{
+			pVSBlob->Release();
+			pVSBlob = NULL;
+		}
 		return result;
 	}
 
 	result = GraphicsCore::pDevice->CreateVertexShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, ppVS);
 	if (FAILED(result) && pVSBlob != NULL)
 	{
-		pVSBlob->Release();
-		pVSBlob = NULL;
+		if (pVSBlob != NULL)
+		{
+			pVSBlob->Release();
+			pVSBlob = NULL;
+		}
 		return result;
 	}
 
@@ -190,10 +196,13 @@ HRESULT GraphicsObject::GenerateGeometryShader(ID3D11GeometryShader** ppGS)
 
 	ID3DBlob* pGSBlob = NULL;
 	result = CompileShaderFromFile("Resources/Effects/Sample.fx", "GSFunc", "gs_5_0", &pGSBlob);
-	if(FAILED(result) && pGSBlob != NULL)
+	if(FAILED(result))
 	{
-		pGSBlob->Release();
-		pGSBlob = NULL;
+		if (pGSBlob != NULL)
+		{
+			pGSBlob->Release();
+			pGSBlob = NULL;
+		}
 		return result;
 	}
 
@@ -211,10 +220,13 @@ HRESULT GraphicsObject::GeneratePixelShader(ID3D11PixelShader** ppPS)
 
 	ID3DBlob* pPSBlob = NULL;
 	result = CompileShaderFromFile("Resources/Effects/Sample.fx", "PSFunc", "ps_5_0", &pPSBlob);
-	if (FAILED(result) && pPSBlob != NULL)
+	if (FAILED(result))
 	{
-		pPSBlob->Release();
-		pPSBlob = NULL;
+		if (pPSBlob != NULL)
+		{
+			pPSBlob->Release();
+			pPSBlob = NULL;
+		}
 		return result;
 	}
 
