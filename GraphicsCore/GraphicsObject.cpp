@@ -103,7 +103,7 @@ HRESULT GraphicsObject::SetVertices(void* data, UINT length)
 	return GraphicsCore::pDevice->CreateBuffer(&bd, &initData, &pVertexBuffer);
 }
 
-void GraphicsObject::Dispose()
+void GraphicsObject::Release()
 {
 	isLocking = true;
 
@@ -309,4 +309,9 @@ DLL_API int GraphicsObject_Create(GraphicsObjectDescription desc)
 DLL_API HRESULT GraphicsObject_SetVertices(int objectID, void* data, UINT length)
 {
 	return GraphicsCore::objects[objectID]->SetVertices(data, length);
+}
+
+DLL_API void SetTexture(int objectID, int slot, Texture* texture)
+{
+	GraphicsCore::objects[objectID]->textures[slot] = texture;
 }

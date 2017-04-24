@@ -2,6 +2,8 @@
 
 #include "DLL.h"
 #include "DataTypesDefinition.h"
+#include "Texture.h"
+#include "ReleasableObject.h"
 #include <d3d11_4.h>
 
 enum VertexType
@@ -11,14 +13,15 @@ enum VertexType
 };
 
 static D3D11_INPUT_ELEMENT_DESC INPUT_ELEMENTS_SHAPE[] = {
-	{ "Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "SV_Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 };
 
 static D3D11_INPUT_ELEMENT_DESC INPUT_ELEMENTS_SHAPE_AND_VALUE[] = {
-	{ "Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	{ "GC_DataIndex", 0, DXGI_FORMAT_R32_UINT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	{ "SV_Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "GC_DataIndex", 0, DXGI_FORMAT_R16_UINT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 };
 
+#define GRAPHICSOBJECT_TEXTURE_MAX (8)
 #define BYTES_INPUT_ELEMENTS_SHAPE (12)
 #define BYTES_INPUT_ELEMENTS_SHAPE_AND_VALUE (16)
 
@@ -31,12 +34,12 @@ struct GraphicsObjectDescription
 	D3D11_PRIMITIVE_TOPOLOGY primitiveTopology;
 };
 
-class GraphicsObject
+class GraphicsObject : public ReleasableObject
 {
 public:
 	static int Create(GraphicsObjectDescription desc);
 	HRESULT SetVertices(void* data, UINT length);
-	void Dispose();
+	void Release();
 	int objectID;
 	bool isLocking = true;
 	VertexType vertexType;
@@ -47,6 +50,7 @@ public:
 	ID3D11GeometryShader* pGeometryShader;
 	ID3D11PixelShader* pPixelShader;
 	ID3D11InputLayout* pInputLayout;
+	Texture* textures[GRAPHICSOBJECT_TEXTURE_MAX];
 
 private:
 	static int GetNewObjectID();
@@ -60,4 +64,5 @@ extern "C"
 {
 	DLL_API int GraphicsObject_Create(GraphicsObjectDescription desc);
 	DLL_API HRESULT GraphicsObject_SetVertices(int objectID, void* data, UINT length);
+	DLL_API void SetTexture(int objectID, int slot, Texture* texture);
 }

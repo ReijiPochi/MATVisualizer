@@ -1,13 +1,14 @@
 #pragma once
 
 #include <d3d11_4.h>
+#include "ReleasableObject.h"
 
 struct ConstantBufferDescription
 {
 	int byteWidth;
 };
 
-class ConstantBuffer
+class ConstantBuffer : public ReleasableObject
 {
 public:
 	static ConstantBuffer* Create(ConstantBufferDescription desc);

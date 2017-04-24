@@ -2,6 +2,14 @@
 
 #include <d3d11_4.h>
 #include <dxgi1_5.h>
+#include "ReleasableObject.h"
+
+class Texture : public ReleasableObject
+{
+public:
+	void Release();
+	ID3D11ShaderResourceView *shaderResource;
+};
 
 struct Texture2DDescription
 {
@@ -21,19 +29,19 @@ struct Texture1DDescription
 	UINT bindFlags = D3D11_BIND_SHADER_RESOURCE;
 };
 
-class Texture2D
+class Texture2D : public Texture
 {
 public:
 	static Texture2D* Create(Texture2DDescription desc);
 	void Release();
 	ID3D11Texture2D* texture;
-	ID3D11ShaderResourceView *shaderResource;
 };
 
-class Texture1D
+class Texture1D : public Texture
 {
 public:
 	static Texture1D* Create(Texture1DDescription desc, void* data);
+	void GSSet(int slot);
+	void Release();
 	ID3D11Texture1D* texture;
-	ID3D11ShaderResourceView* shaderResource;
 };

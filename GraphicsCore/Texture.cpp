@@ -2,6 +2,12 @@
 #include "GraphicsCore.h"
 #include <d3d11_4.h>
 
+
+void Texture::Release()
+{
+	ReleaseIUnknown(shaderResource);
+}
+
 Texture2D* Texture2D::Create(Texture2DDescription desc)
 {
 	Texture2D* result = new Texture2D;
@@ -44,7 +50,6 @@ Texture2D* Texture2D::Create(Texture2DDescription desc)
 void Texture2D::Release()
 {
 	ReleaseIUnknown(texture);
-	ReleaseIUnknown(shaderResource);
 }
 
 Texture1D* Texture1D::Create(Texture1DDescription desc, void* data)
@@ -77,4 +82,14 @@ Texture1D* Texture1D::Create(Texture1DDescription desc, void* data)
 	GraphicsCore::pDevice->CreateShaderResourceView(result->texture, &srvDesc, &result->shaderResource);
 
 	return result;
+}
+
+void Texture1D::GSSet(int slot)
+{
+	GraphicsCore::pDeviceContext->GSSetShaderResources(slot, 1, &shaderResource);
+}
+
+void Texture1D::Release()
+{
+	ReleaseIUnknown(texture);
 }

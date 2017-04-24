@@ -1,6 +1,7 @@
 #include "GraphicsCore.h"
 #include "GraphicsObject.h"
 #include "ConstantBuffer.h"
+#include "ReleasableObject.h"
 
 #include <windows.h>
 #include <cstdio>
@@ -40,11 +41,6 @@ void ReleaseIUnknown(IUnknown* target)
 
 void GraphicsCore::Render()
 {
-	GraphicsCore::camera->SetMatrix();
-	GraphicsCore::globalCBufferData.camera = GraphicsCore::camera->cameraMatrix;
-
-	GraphicsCore::globalCBuffer->Update(&GraphicsCore::globalCBufferData);
-
 	for (int index = 0; index < GRAPHICS_OBJECT_MAX_COUNT; index++)
 	{
 		if (GraphicsCore::objects[index] == NULL)
@@ -77,22 +73,13 @@ void GraphicsCore::Render()
 
 void GraphicsCore::Release()
 {
+	ReleasableObject::ReleaseAll();
+
 	if (GraphicsCore::pDeviceContext != nullptr)
 	{
 		GraphicsCore::pDeviceContext->ClearState();
 		GraphicsCore::pDeviceContext->Flush();
 	}
-
-	for each (GraphicsObject* obj in GraphicsCore::objects)
-	{
-		if (obj == nullptr)
-			continue;
-
-		obj->Dispose();
-	}
-
-	depthStencil->Release();
-	globalCBuffer->Release();
 
 	ReleaseIUnknown(GraphicsCore::pBackBuffer);
 	ReleaseIUnknown(GraphicsCore::depthStencilView);
@@ -229,6 +216,7 @@ extern "C"
 {
 
 	float r = 0.0;
+
 	// デバイス等を初期化し、GraphicsCoreの機能を使用できるようにします。
 	// HWND handle : 描画結果を出力するウインドウのハンドル
 	DLL_API int Initialize(HWND handle)
@@ -240,18 +228,24 @@ extern "C"
 		// メインループ
 		while (!finalize)
 		{
-				// レンダーターゲットビューをクリア
-				float clearColor[4] = { r, 0.2f, 0.2f, 1.0f };
-				GraphicsCore::pDeviceContext->ClearRenderTargetView(GraphicsCore::pBackBuffer, clearColor);
+			GraphicsCore::camera->eye = DirectX::XMVectorSet(2.0f * sin(r * 5.0f), 0.0f, -2.0f * cos(r * 5.0f), 0.0f);
+			GraphicsCore::camera->SetMatrix();
+			GraphicsCore::globalCBufferData.camera = GraphicsCore::camera->cameraMatrix;
 
-				GraphicsCore::pDeviceContext->ClearDepthStencilView(GraphicsCore::depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+			GraphicsCore::globalCBuffer->Update(&GraphicsCore::globalCBufferData);
 
-				GraphicsCore::Render();
+			// レンダーターゲットビューをクリア
+			float clearColor[4] = { r, 0.2f, 0.2f, 1.0f };
+			GraphicsCore::pDeviceContext->ClearRenderTargetView(GraphicsCore::pBackBuffer, clearColor);
 
-				// フリップ処理
-				GraphicsCore::pSwapChain->Present(1, 0);
+			GraphicsCore::pDeviceContext->ClearDepthStencilView(GraphicsCore::depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-				r += 0.001;
+			GraphicsCore::Render();
+
+			// フリップ処理
+			GraphicsCore::pSwapChain->Present(1, 0);
+
+			r += 0.001;
 		}
 
 		GraphicsCore::Release();
