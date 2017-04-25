@@ -49,6 +49,7 @@ Texture2D* Texture2D::Create(Texture2DDescription desc)
 
 void Texture2D::Release()
 {
+	Texture::Release();
 	ReleaseIUnknown(texture);
 }
 
@@ -91,5 +92,6 @@ void Texture1D::GSSet(int slot)
 
 void Texture1D::Release()
 {
+	Texture::Release();
 	ReleaseIUnknown(texture);
 }

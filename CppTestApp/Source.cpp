@@ -20,7 +20,7 @@ void main()
 	//printf("ModuleHandle : %x \n", GraphicsCore::hInst);
 	//printf("WindowHandle : %x \n", GraphicsCore::hWnd);
 
-	auto graphicsThread = thread(Initialize, hWnd);
+	auto graphicsThread = thread(GraphicsCore_Initialize, hWnd);
 	//Initialize(CurrentGraphicsCore.hWnd);
 
 	printf("Initialized GraphicsCore \n");
@@ -30,17 +30,34 @@ void main()
 	goDesc.vertexType = VertexType_ShapeAndValue;
 	goDesc.primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
-	int id = GraphicsObject_Create(goDesc);
-	printf("A Object was generated. ID : %d \n", id);
+	GraphicsObject* obj1 = GraphicsObject_Create(goDesc);
+	printf("A Object was generated. \n");
 
 	VertexData_ShapeAndValue vertices[]
 	{
-		{Vector3(0.0,0.0,0.0), 0},
-		{Vector3(0.0,1.0,0.0), 2},
-		{Vector3(1.0,0.0,0.0), 5},
+		{Vector3(0.0f,0.0f,0.0f), 0},
+		{Vector3(0.0f,1.0f,0.0f), 1},
+		{Vector3(1.0f,0.0f,0.0f), 2},
 	};
 
-	GraphicsObject_SetVertices(id, vertices, 3);
+	GraphicsObject_SetVertices(obj1, vertices, 3);
+
+	Vector3 data[]
+	{
+		Vector3(1.0f,1.0f,0.0f),
+		Vector3(1.0f,0.0f,1.0f),
+		Vector3(0.0f,1.0f,1.0f)
+	};
+
+	BufferDescription bDesc;
+	bDesc.elementSize = sizeof(Vector3);
+	bDesc.numElements = 3;
+
+	Buffer* pbuffer = Buffer_Create(&bDesc, data);
+
+	GraphicsObject_SetBuffer(obj1, 0, pbuffer);
+
+	GraphicsCore_AddToRenderingList(obj1);
 
 	MSG msg = { 0 };
 	bool debuging = true;
@@ -67,7 +84,7 @@ void main()
 		}
 	}
 
-	Finalize();
+	GraphicsCore_Finalize();
 	graphicsThread.join();
 
 	return;

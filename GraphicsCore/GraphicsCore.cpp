@@ -14,17 +14,17 @@ bool GraphicsCore::Ready = false;
 HWND GraphicsCore::hWnd = NULL;
 float GraphicsCore::viewHeight = 1.0f;
 float GraphicsCore::viewWidth = 1.0f;
-Camera* GraphicsCore::camera = new Camera;
+Camera* GraphicsCore::pCamera = new Camera;
 GlobalCBufferData GraphicsCore::globalCBufferData = { };
-ConstantBuffer* GraphicsCore::globalCBuffer = NULL;
-GraphicsObject* GraphicsCore::objects[GRAPHICS_OBJECT_MAX_COUNT];
+ConstantBuffer* GraphicsCore::pGlobalCBuffer = NULL;
+std::vector<GraphicsObject*> GraphicsCore::pRenderingList;
 D3D_FEATURE_LEVEL GraphicsCore::featureLevel = (D3D_FEATURE_LEVEL)0;
 ID3D11Device* GraphicsCore::pDevice = NULL;
 ID3D11DeviceContext* GraphicsCore::pDeviceContext = NULL;
 IDXGISwapChain* GraphicsCore::pSwapChain = NULL;
 ID3D11RenderTargetView* GraphicsCore::pBackBuffer = NULL;
-Texture2D* GraphicsCore::depthStencil = NULL;
-ID3D11DepthStencilView* GraphicsCore::depthStencilView = NULL;
+Texture2D* GraphicsCore::pDepthStencilTexture = NULL;
+ID3D11DepthStencilView* GraphicsCore::pDepthStencilView = NULL;
 
 bool finalize = false;
 
@@ -41,31 +41,30 @@ void ReleaseIUnknown(IUnknown* target)
 
 void GraphicsCore::Render()
 {
-	for (int index = 0; index < GRAPHICS_OBJECT_MAX_COUNT; index++)
+	for (std::vector<GraphicsObject*>::iterator itr = GraphicsCore::pRenderingList.begin(); itr != GraphicsCore::pRenderingList.end(); ++itr)
 	{
-		if (GraphicsCore::objects[index] == NULL)
-			continue;
-
-		if (GraphicsCore::objects[index]->isLocking)
+		if ((*itr)->isLocking)
 			continue;
 
 		// 入力アセンブラに入力レイアウトを設定
-		GraphicsCore::pDeviceContext->IASetInputLayout(GraphicsCore::objects[index]->pInputLayout);
+		GraphicsCore::pDeviceContext->IASetInputLayout((*itr)->pInputLayout);
 
 		// 入力アセンブラに頂点バッファを設定
-		UINT stride = GetSizeOfVertexType(GraphicsCore::objects[index]->vertexType);
+		UINT stride = GetSizeOfVertexType((*itr)->vertexType);
 		UINT offset = 0;
-		GraphicsCore::pDeviceContext->IASetVertexBuffers(0, 1, &GraphicsCore::objects[index]->pVertexBuffer, &stride, &offset);
+		GraphicsCore::pDeviceContext->IASetVertexBuffers(0, 1, &(*itr)->pVertexBuffer, &stride, &offset);
+
 
 		// プリミティブの種類を設定
-		GraphicsCore::pDeviceContext->IASetPrimitiveTopology(GraphicsCore::objects[index]->primitiveTopology);
+		GraphicsCore::pDeviceContext->IASetPrimitiveTopology((*itr)->primitiveTopology);
 
 		// シェーダを設定
-		GraphicsCore::pDeviceContext->VSSetShader(GraphicsCore::objects[index]->pVertexShader, NULL, 0);
-		GraphicsCore::pDeviceContext->GSSetShader(GraphicsCore::objects[index]->pGeometryShader, NULL, 0);
-		GraphicsCore::pDeviceContext->PSSetShader(GraphicsCore::objects[index]->pPixelShader, NULL, 0);
+		GraphicsCore::pDeviceContext->VSSetShader((*itr)->pVertexShader, NULL, 0);
+		GraphicsCore::pDeviceContext->GSSetShader((*itr)->pGeometryShader, NULL, 0);
+		GraphicsCore::pDeviceContext->PSSetShader((*itr)->pPixelShader, NULL, 0);
 
-		GraphicsCore::globalCBuffer->Set();
+		GraphicsCore::pGlobalCBuffer->Set();
+		(*itr)->DownloadBuffers();
 
 		GraphicsCore::pDeviceContext->Draw(3, 0);
 	}
@@ -82,7 +81,7 @@ void GraphicsCore::Release()
 	}
 
 	ReleaseIUnknown(GraphicsCore::pBackBuffer);
-	ReleaseIUnknown(GraphicsCore::depthStencilView);
+	ReleaseIUnknown(GraphicsCore::pDepthStencilView);
 	ReleaseIUnknown(GraphicsCore::pSwapChain);
 	ReleaseIUnknown(GraphicsCore::pDeviceContext);
 	ReleaseIUnknown(GraphicsCore::pDevice);
@@ -148,10 +147,12 @@ void InitializeDevice()
 
 	// バックバッファーを取得
 	ID3D11Texture2D* pBackBuffer = NULL;
-	GraphicsCore::pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
+	{
+		GraphicsCore::pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
 
-	// レンダーターゲットビューを生成
-	GraphicsCore::pDevice->CreateRenderTargetView(pBackBuffer, NULL, &GraphicsCore::pBackBuffer);
+		// レンダーターゲットビューを生成
+		GraphicsCore::pDevice->CreateRenderTargetView(pBackBuffer, NULL, &GraphicsCore::pBackBuffer);
+	}
 	pBackBuffer->Release();
 	pBackBuffer = NULL;
 
@@ -163,7 +164,7 @@ void InitializeDevice()
 	depthTexDesc.sample = 4;
 	depthTexDesc.bindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 
-	GraphicsCore::depthStencil = Texture2D::Create(depthTexDesc);
+	GraphicsCore::pDepthStencilTexture = Texture2D::Create(depthTexDesc);
 
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthDesc;
 	ZeroMemory(&depthDesc, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
@@ -178,10 +179,10 @@ void InitializeDevice()
 		depthDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
 	}
 
-	GraphicsCore::pDevice->CreateDepthStencilView(GraphicsCore::depthStencil->texture, &depthDesc, &GraphicsCore::depthStencilView);
+	GraphicsCore::pDevice->CreateDepthStencilView(GraphicsCore::pDepthStencilTexture->texture, &depthDesc, &GraphicsCore::pDepthStencilView);
 
 	// 出力マネージャにレンダーターゲットビューを設定
-	GraphicsCore::pDeviceContext->OMSetRenderTargets(1, &GraphicsCore::pBackBuffer, GraphicsCore::depthStencilView);
+	GraphicsCore::pDeviceContext->OMSetRenderTargets(1, &GraphicsCore::pBackBuffer, GraphicsCore::pDepthStencilView);
 
 	D3D11_RASTERIZER_DESC rDesc;
 	ZeroMemory(&rDesc, sizeof(D3D11_RASTERIZER_DESC));
@@ -190,9 +191,12 @@ void InitializeDevice()
 	rDesc.CullMode = D3D11_CULL_NONE;
 
 	ID3D11RasterizerState *rasterizerState;
-
-	GraphicsCore::pDevice->CreateRasterizerState(&rDesc, &rasterizerState);
-	GraphicsCore::pDeviceContext->RSSetState(rasterizerState);
+	{
+		GraphicsCore::pDevice->CreateRasterizerState(&rDesc, &rasterizerState);
+		GraphicsCore::pDeviceContext->RSSetState(rasterizerState);
+	}
+	rasterizerState->Release();
+	rasterizerState = nullptr;
 
 	// ビューポートの設定
 	D3D11_VIEWPORT vp;
@@ -207,7 +211,7 @@ void InitializeDevice()
 	ConstantBufferDescription cbufferDesc;
 	cbufferDesc.byteWidth = sizeof(GlobalCBufferData);
 
-	GraphicsCore::globalCBuffer = ConstantBuffer::Create(cbufferDesc);
+	GraphicsCore::pGlobalCBuffer = ConstantBuffer::Create(cbufferDesc);
 
 	GraphicsCore::Ready = true;
 }
@@ -219,7 +223,7 @@ extern "C"
 
 	// デバイス等を初期化し、GraphicsCoreの機能を使用できるようにします。
 	// HWND handle : 描画結果を出力するウインドウのハンドル
-	DLL_API int Initialize(HWND handle)
+	DLL_API int GraphicsCore_Initialize(HWND handle)
 	{
 		GraphicsCore::hWnd = handle;
 		
@@ -228,17 +232,20 @@ extern "C"
 		// メインループ
 		while (!finalize)
 		{
-			GraphicsCore::camera->eye = DirectX::XMVectorSet(2.0f * sin(r * 5.0f), 0.0f, -2.0f * cos(r * 5.0f), 0.0f);
-			GraphicsCore::camera->SetMatrix();
-			GraphicsCore::globalCBufferData.camera = GraphicsCore::camera->cameraMatrix;
+			GraphicsCore::pCamera->eye = DirectX::XMVectorSet(2.0f * sin(r * 5.0f), 1.0f, -2.0f * cos(r * 5.0f), 0.0f);
+			GraphicsCore::pCamera->target = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+			GraphicsCore::pCamera->up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
-			GraphicsCore::globalCBuffer->Update(&GraphicsCore::globalCBufferData);
+			GraphicsCore::pCamera->SetMatrix();
+			GraphicsCore::globalCBufferData.camera = GraphicsCore::pCamera->cameraMatrix;
+
+			GraphicsCore::pGlobalCBuffer->Update(&GraphicsCore::globalCBufferData);
 
 			// レンダーターゲットビューをクリア
 			float clearColor[4] = { r, 0.2f, 0.2f, 1.0f };
 			GraphicsCore::pDeviceContext->ClearRenderTargetView(GraphicsCore::pBackBuffer, clearColor);
 
-			GraphicsCore::pDeviceContext->ClearDepthStencilView(GraphicsCore::depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+			GraphicsCore::pDeviceContext->ClearDepthStencilView(GraphicsCore::pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 			GraphicsCore::Render();
 
@@ -253,7 +260,12 @@ extern "C"
 		return 1;
 	}
 
-	DLL_API void Finalize()
+	DLL_API void GraphicsCore_AddToRenderingList(GraphicsObject* object)
+	{
+		GraphicsCore::pRenderingList.push_back(object);
+	}
+
+	DLL_API void GraphicsCore_Finalize()
 	{
 		finalize = true;
 	}

@@ -24,21 +24,21 @@ struct GlobalCBufferData
 class GraphicsCore
 {
 public:
-	static bool Ready;
+	static bool						Ready;
 	static HWND						hWnd;					// ウィンドウハンドル
-	static float viewWidth;
-	static float viewHeight;
-	static Camera* camera;
-	static GlobalCBufferData globalCBufferData;
-	static ConstantBuffer* globalCBuffer;
-	static GraphicsObject *objects[];
+	static float					viewWidth;
+	static float					viewHeight;
+	static Camera*					pCamera;
+	static GlobalCBufferData		globalCBufferData;
+	static ConstantBuffer*			pGlobalCBuffer;
+	static std::vector<GraphicsObject*> pRenderingList;
 	static D3D_FEATURE_LEVEL		featureLevel;			// 
 	static ID3D11Device*			pDevice;				// D3D11デバイスインタフェース
 	static ID3D11DeviceContext*		pDeviceContext;			// D3D11デバイスコンテキストインタフェース
 	static IDXGISwapChain*			pSwapChain;				// スワップチェイン
 	static ID3D11RenderTargetView*	pBackBuffer;			// バックバッファ
-	static Texture2D* depthStencil;
-	static ID3D11DepthStencilView*	depthStencilView;
+	static Texture2D*				pDepthStencilTexture;
+	static ID3D11DepthStencilView*	pDepthStencilView;
 	static void Render();
 	static void Release();
 };
@@ -47,6 +47,7 @@ void ReleaseIUnknown(IUnknown* target);
 
 extern "C"
 {
-	DLL_API int Initialize(HWND handle);
-	DLL_API void Finalize();
+	DLL_API int GraphicsCore_Initialize(HWND handle);
+	DLL_API void GraphicsCore_AddToRenderingList(GraphicsObject* object);
+	DLL_API void GraphicsCore_Finalize();
 }

@@ -36,14 +36,9 @@ UINT GetElementCountOfVertexType(VertexType type)
 	}
 }
 
-int GraphicsObject::Create(GraphicsObjectDescription desc)
+GraphicsObject* GraphicsObject::Create(GraphicsObjectDescription desc)
 {
 	while (!GraphicsCore::Ready);
-
-	int id = GetNewObjectID();
-
-	if (id < 0)
-		return -1;
 
 	GraphicsObject *go = new GraphicsObject();
 
@@ -59,11 +54,9 @@ int GraphicsObject::Create(GraphicsObjectDescription desc)
 	go->primitiveTopology = desc.primitiveTopology;
 	go->vertexType = desc.vertexType;
 
-	GraphicsCore::objects[id] = go;
+	go->isLocking = false;
 
-	GraphicsCore::objects[id]->isLocking = false;
-
-	return id;
+	return go;
 }
 
 HRESULT GraphicsObject::SetVertices(void* data, UINT length)
@@ -103,6 +96,20 @@ HRESULT GraphicsObject::SetVertices(void* data, UINT length)
 	return GraphicsCore::pDevice->CreateBuffer(&bd, &initData, &pVertexBuffer);
 }
 
+void GraphicsObject::DownloadBuffers()
+{
+	for (int i = 0; i < GRAPHICSOBJECT_BUFFER_MAX; i++)
+	{
+		if (buffers[i] == nullptr)
+			continue;
+
+		if (buffers[i]->buffer == nullptr)
+			continue;
+
+		GraphicsCore::pDeviceContext->VSSetShaderResources(i, 1, &buffers[i]->shaderResource);
+	}
+}
+
 void GraphicsObject::Release()
 {
 	isLocking = true;
@@ -113,22 +120,6 @@ void GraphicsObject::Release()
 	ReleaseIUnknown(pGeometryShader);
 	ReleaseIUnknown(pPixelShader);
 	ReleaseIUnknown(pInputLayout);
-
-	GraphicsCore::objects[objectID] = nullptr;
-}
-
-// 使用できるオブジェクトスロットを検索します。
-int GraphicsObject::GetNewObjectID()
-{
-	for (int index = 0; index < GRAPHICS_OBJECT_MAX_COUNT; index++)
-	{
-		if (GraphicsCore::objects[index] == nullptr)
-		{
-			return index;
-		}
-	}
-
-	return -1;
 }
 
 HRESULT GraphicsObject::GenerateVertexShaderAndInputLayout(GraphicsObjectDescription desc, ID3D11VertexShader** ppVS, ID3D11InputLayout** ppinputLayout)
@@ -301,17 +292,22 @@ HRESULT GraphicsObject::CompileShaderFromFile(char* pFileName, LPCSTR pEntryPoin
 	return hr;
 }
 
-DLL_API int GraphicsObject_Create(GraphicsObjectDescription desc)
+DLL_API GraphicsObject* GraphicsObject_Create(GraphicsObjectDescription desc)
 {
 	return GraphicsObject::Create(desc);
 }
 
-DLL_API HRESULT GraphicsObject_SetVertices(int objectID, void* data, UINT length)
+DLL_API HRESULT GraphicsObject_SetVertices(GraphicsObject* object, void* data, UINT length)
 {
-	return GraphicsCore::objects[objectID]->SetVertices(data, length);
+	return object->SetVertices(data, length);
 }
 
-DLL_API void SetTexture(int objectID, int slot, Texture* texture)
+DLL_API void GraphicsObject_SetTexture(GraphicsObject* object, int slot, Texture* texture)
 {
-	GraphicsCore::objects[objectID]->textures[slot] = texture;
+	object->textures[slot] = texture;
+}
+
+DLL_API void GraphicsObject_SetBuffer(GraphicsObject* object, int slot, Buffer* buffer)
+{
+	object->buffers[slot] = buffer;
 }
