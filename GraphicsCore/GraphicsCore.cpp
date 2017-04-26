@@ -30,12 +30,12 @@ bool finalize = false;
 
 void InitializeDevice();
 
-void ReleaseIUnknown(IUnknown* target)
+void ReleaseIUnknown(IUnknown** target)
 {
-	if (target != nullptr)
+	if (*target != nullptr)
 	{
-		target->Release();
-		target = nullptr;
+		(*target)->Release();
+		*target = nullptr;
 	}
 }
 
@@ -80,11 +80,11 @@ void GraphicsCore::Release()
 		GraphicsCore::pDeviceContext->Flush();
 	}
 
-	ReleaseIUnknown(GraphicsCore::pBackBuffer);
-	ReleaseIUnknown(GraphicsCore::pDepthStencilView);
-	ReleaseIUnknown(GraphicsCore::pSwapChain);
-	ReleaseIUnknown(GraphicsCore::pDeviceContext);
-	ReleaseIUnknown(GraphicsCore::pDevice);
+	ReleaseIUnknown((IUnknown**)&GraphicsCore::pBackBuffer);
+	ReleaseIUnknown((IUnknown**)&GraphicsCore::pDepthStencilView);
+	ReleaseIUnknown((IUnknown**)&GraphicsCore::pSwapChain);
+	ReleaseIUnknown((IUnknown**)&GraphicsCore::pDeviceContext);
+	ReleaseIUnknown((IUnknown**)&GraphicsCore::pDevice);
 }
 
 void InitializeDevice()
@@ -242,7 +242,7 @@ extern "C"
 			GraphicsCore::pGlobalCBuffer->Update(&GraphicsCore::globalCBufferData);
 
 			// レンダーターゲットビューをクリア
-			float clearColor[4] = { r, 0.2f, 0.2f, 1.0f };
+			float clearColor[4] = { r, 0.15f, 0.15f, 1.0f };
 			GraphicsCore::pDeviceContext->ClearRenderTargetView(GraphicsCore::pBackBuffer, clearColor);
 
 			GraphicsCore::pDeviceContext->ClearDepthStencilView(GraphicsCore::pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -258,6 +258,11 @@ extern "C"
 		GraphicsCore::Release();
 
 		return 1;
+	}
+
+	DLL_API ID3D11Device* GraphicsCore_GetDevice()
+	{
+		return GraphicsCore::pDevice;
 	}
 
 	DLL_API void GraphicsCore_AddToRenderingList(GraphicsObject* object)

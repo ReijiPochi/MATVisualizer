@@ -30,7 +30,7 @@ void main()
 	goDesc.vertexType = VertexType_ShapeAndValue;
 	goDesc.primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
-	GraphicsObject* obj1 = GraphicsObject_Create(goDesc);
+	GraphicsObject* obj1 = GraphicsObject_Create(&goDesc);
 	printf("A Object was generated. \n");
 
 	VertexData_ShapeAndValue vertices[]

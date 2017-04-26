@@ -31,5 +31,6 @@ void ConstantBuffer::Set()
 
 void ConstantBuffer::Release()
 {
-	ReleaseIUnknown(buffer);
+	ReleasableObject::Release();
+	ReleaseIUnknown((IUnknown**)&buffer);
 }

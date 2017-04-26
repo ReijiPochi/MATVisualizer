@@ -5,7 +5,8 @@
 
 void Texture::Release()
 {
-	ReleaseIUnknown(shaderResource);
+	ReleasableObject::Release();
+	ReleaseIUnknown((IUnknown**)&shaderResource);
 }
 
 Texture2D* Texture2D::Create(Texture2DDescription desc)
@@ -50,7 +51,7 @@ Texture2D* Texture2D::Create(Texture2DDescription desc)
 void Texture2D::Release()
 {
 	Texture::Release();
-	ReleaseIUnknown(texture);
+	ReleaseIUnknown((IUnknown**)&texture);
 }
 
 Texture1D* Texture1D::Create(Texture1DDescription desc, void* data)
@@ -93,5 +94,5 @@ void Texture1D::GSSet(int slot)
 void Texture1D::Release()
 {
 	Texture::Release();
-	ReleaseIUnknown(texture);
+	ReleaseIUnknown((IUnknown**)&texture);
 }

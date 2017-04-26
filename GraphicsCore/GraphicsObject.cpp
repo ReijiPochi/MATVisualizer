@@ -36,7 +36,7 @@ UINT GetElementCountOfVertexType(VertexType type)
 	}
 }
 
-GraphicsObject* GraphicsObject::Create(GraphicsObjectDescription desc)
+GraphicsObject* GraphicsObject::Create(GraphicsObjectDescription* desc)
 {
 	while (!GraphicsCore::Ready);
 
@@ -46,13 +46,13 @@ GraphicsObject* GraphicsObject::Create(GraphicsObjectDescription desc)
 	GenerateGeometryShader(&go->pGeometryShader);
 	GeneratePixelShader(&go->pPixelShader);
 
-	if (desc.vertexType == VertexType_ShapeAndValue)
+	if ((*desc).vertexType == VertexType_ShapeAndValue)
 	{
 		
 	}
 
-	go->primitiveTopology = desc.primitiveTopology;
-	go->vertexType = desc.vertexType;
+	go->primitiveTopology = (*desc).primitiveTopology;
+	go->vertexType = (*desc).vertexType;
 
 	go->isLocking = false;
 
@@ -114,15 +114,17 @@ void GraphicsObject::Release()
 {
 	isLocking = true;
 
-	ReleaseIUnknown(pVertexBuffer);
-	ReleaseIUnknown(pIndexBuffer);
-	ReleaseIUnknown(pVertexShader);
-	ReleaseIUnknown(pGeometryShader);
-	ReleaseIUnknown(pPixelShader);
-	ReleaseIUnknown(pInputLayout);
+	ReleasableObject::Release();
+
+	ReleaseIUnknown((IUnknown**)&pVertexBuffer);
+	ReleaseIUnknown((IUnknown**)&pIndexBuffer);
+	ReleaseIUnknown((IUnknown**)&pVertexShader);
+	ReleaseIUnknown((IUnknown**)&pGeometryShader);
+	ReleaseIUnknown((IUnknown**)&pPixelShader);
+	ReleaseIUnknown((IUnknown**)&pInputLayout);
 }
 
-HRESULT GraphicsObject::GenerateVertexShaderAndInputLayout(GraphicsObjectDescription desc, ID3D11VertexShader** ppVS, ID3D11InputLayout** ppinputLayout)
+HRESULT GraphicsObject::GenerateVertexShaderAndInputLayout(GraphicsObjectDescription* desc, ID3D11VertexShader** ppVS, ID3D11InputLayout** ppinputLayout)
 {
 	HRESULT result = S_OK;
 
@@ -151,7 +153,7 @@ HRESULT GraphicsObject::GenerateVertexShaderAndInputLayout(GraphicsObjectDescrip
 
 	D3D11_INPUT_ELEMENT_DESC *layout;
 
-	switch (desc.vertexType)
+	switch ((*desc).vertexType)
 	{
 	case VertexType_Shape:
 		layout = INPUT_ELEMENTS_SHAPE;
@@ -165,7 +167,7 @@ HRESULT GraphicsObject::GenerateVertexShaderAndInputLayout(GraphicsObjectDescrip
 		break;
 	}
 
-	UINT numElements = GetElementCountOfVertexType(desc.vertexType);
+	UINT numElements = GetElementCountOfVertexType((*desc).vertexType);
 
 	// 入力レイアウトを生成
 	result = GraphicsCore::pDevice->CreateInputLayout(
@@ -292,7 +294,7 @@ HRESULT GraphicsObject::CompileShaderFromFile(char* pFileName, LPCSTR pEntryPoin
 	return hr;
 }
 
-DLL_API GraphicsObject* GraphicsObject_Create(GraphicsObjectDescription desc)
+DLL_API GraphicsObject* GraphicsObject_Create(GraphicsObjectDescription* desc)
 {
 	return GraphicsObject::Create(desc);
 }

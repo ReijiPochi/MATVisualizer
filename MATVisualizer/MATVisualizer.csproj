@@ -67,9 +67,12 @@
     <Compile Include="Graphics\Core\Buffer.cs" />
     <Compile Include="Graphics\Core\BufferDescription.cs" />
     <Compile Include="Graphics\Core\CPUAccessFlag.cs" />
+    <Compile Include="Graphics\Core\D3D11_PRIMITIVE_TOPOLOGY.cs" />
     <Compile Include="Graphics\Core\GraphicsCore.cs" />
     <Compile Include="Graphics\Core\GraphicsObject.cs" />
+    <Compile Include="Graphics\Core\GraphicsObjectDescription.cs" />
     <Compile Include="Graphics\Core\Usage.cs" />
+    <Compile Include="Graphics\Core\VertexType.cs" />
     <Compile Include="Graphics\Object3D.cs" />
     <Compile Include="HRESULT.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">

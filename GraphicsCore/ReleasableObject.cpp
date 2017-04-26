@@ -12,11 +12,14 @@ void ReleasableObject::ReleaseAll()
 	for (std::vector<ReleasableObject*>::iterator itr = objectsList->begin(); itr != objectsList->end(); ++itr)
 	{
 		if ((*itr) != NULL)
+		{
 			(*itr)->Release();
+			delete *itr;
+		}
 	}
 }
 
 void ReleasableObject::Release()
 {
-
+	
 }

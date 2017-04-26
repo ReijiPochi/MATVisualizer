@@ -9,8 +9,8 @@
 
 enum VertexType
 {
-	VertexType_Shape,
-	VertexType_ShapeAndValue,
+	VertexType_Shape	= 1,
+	VertexType_ShapeAndValue	=2,
 };
 
 static D3D11_INPUT_ELEMENT_DESC INPUT_ELEMENTS_SHAPE[] = {
@@ -39,12 +39,14 @@ struct GraphicsObjectDescription
 class GraphicsObject : public ReleasableObject
 {
 public:
-	static GraphicsObject* Create(GraphicsObjectDescription desc);
+	static GraphicsObject* Create(GraphicsObjectDescription* desc);
 	HRESULT SetVertices(void* data, UINT length);
 	void DownloadBuffers();
 	void Release();
-	bool isLocking = true;
+	bool						isLocking = true;
 	VertexType					vertexType;
+	int							numVertices;
+	int							numIndices;
 	D3D11_PRIMITIVE_TOPOLOGY	primitiveTopology;
 	ID3D11Buffer*				pVertexBuffer;
 	ID3D11Buffer*				pIndexBuffer;
@@ -56,7 +58,7 @@ public:
 	Buffer*						buffers[GRAPHICSOBJECT_BUFFER_MAX];
 
 private:
-	static HRESULT GenerateVertexShaderAndInputLayout(GraphicsObjectDescription desc, ID3D11VertexShader** ppVS, ID3D11InputLayout** ppinputLayout);
+	static HRESULT GenerateVertexShaderAndInputLayout(GraphicsObjectDescription* desc, ID3D11VertexShader** ppVS, ID3D11InputLayout** ppinputLayout);
 	static HRESULT GenerateGeometryShader(ID3D11GeometryShader** ppGS);
 	static HRESULT GeneratePixelShader(ID3D11PixelShader** ppPS);
 	static HRESULT CompileShaderFromFile(char* pFileName, LPCSTR pEntryPoint, LPCSTR pShaderModel, ID3DBlob** ppBlob);
@@ -64,7 +66,7 @@ private:
 
 extern "C"
 {
-	DLL_API GraphicsObject* GraphicsObject_Create(GraphicsObjectDescription desc);
+	DLL_API GraphicsObject* GraphicsObject_Create(GraphicsObjectDescription* desc);
 	DLL_API HRESULT GraphicsObject_SetVertices(GraphicsObject* object, void* data, UINT length);
 	DLL_API void GraphicsObject_SetTexture(GraphicsObject* object, int slot, Texture* texture);
 	DLL_API void GraphicsObject_SetBuffer(GraphicsObject* object, int slot, Buffer* buffer);

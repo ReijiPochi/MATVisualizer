@@ -43,11 +43,12 @@ public:
 	static void Release();
 };
 
-void ReleaseIUnknown(IUnknown* target);
+void ReleaseIUnknown(IUnknown** target);
 
 extern "C"
 {
 	DLL_API int GraphicsCore_Initialize(HWND handle);
+	DLL_API ID3D11Device* GraphicsCore_GetDevice();
 	DLL_API void GraphicsCore_AddToRenderingList(GraphicsObject* object);
 	DLL_API void GraphicsCore_Finalize();
 }

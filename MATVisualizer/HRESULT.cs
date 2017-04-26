@@ -9,7 +9,7 @@ namespace MATVisualizer
     /// <summary>
     /// The return codes from API functions. 
     /// </summary>
-    enum HRESULT : uint
+    public enum HRESULT : uint
     {
         /// <summary>
         /// The specified file was not found.

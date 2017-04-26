@@ -9,7 +9,16 @@ namespace MATVisualizer.Graphics.Core
 {
     public class GraphicsCore
     {
-        [DllImport("GraphicsCore.dll", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        [DllImport("GraphicsCore.dll", EntryPoint = "GraphicsCore_Initialize", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern int Initialize(IntPtr handle);
+
+        [DllImport("GraphicsCore.dll", EntryPoint = "GraphicsCore_GetDevice", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern IntPtr GetDevice();
+
+        [DllImport("GraphicsCore.dll", EntryPoint = "GraphicsCore_AddToRenderingList", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void AddToRenderingList(IntPtr obj);
+
+        [DllImport("GraphicsCore.dll", EntryPoint = "GraphicsCore_Finalize", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void GraphicsCore_Finalize();
     }
 }

@@ -1,7 +1,10 @@
-﻿using System;
+﻿using MATVisualizer.Graphics;
+using MATVisualizer.Graphics.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,7 +27,22 @@ namespace TestApp
         public MainWindow()
         {
             InitializeComponent();
+            Closed += MainWindow_Closed;
+            Application.Current.Exit += Current_Exit;
         }
+
+        private void MainWindow_Closed(object sender, EventArgs e)
+        {
+            Application.Current.Shutdown();
+        }
+
+        private void Current_Exit(object sender, ExitEventArgs e)
+        {
+            GraphicsCore.GraphicsCore_Finalize();
+            graphicsThread?.Join();
+        }
+
+        Thread graphicsThread;
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
@@ -33,8 +51,25 @@ namespace TestApp
 
             HwndSource source = (HwndSource)HwndSource.FromVisual(graphicsWindow);
 
-            MATVisualizer.Graphics.Core.GraphicsCore.Initialize(source.Handle);
+            graphicsThread = new Thread(Initialize);
+            graphicsThread.Start(source.Handle);
+
+            GraphicsObjectDescription desc = new GraphicsObjectDescription()
+            {
+                vertexType = VertexType.ShapeAndValue,
+                primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY.TRIANGLELIST
+            };
+
+            Thread.Sleep(1000);
+
+            //Object3D obj1 = new Object3D(desc);
+
             //MATVisualizer.Data.UDCLoader.Load(@"AVS1.inp");
+        }
+
+        private static void Initialize(object handle)
+        {
+            GraphicsCore.Initialize((IntPtr)handle);
         }
     }
 }
