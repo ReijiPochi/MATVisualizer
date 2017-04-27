@@ -3,6 +3,7 @@ using MATVisualizer.Graphics.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,6 +17,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+
 
 namespace TestApp
 {
@@ -60,9 +62,33 @@ namespace TestApp
                 primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY.TRIANGLELIST
             };
 
-            Thread.Sleep(1000);
+            Object3D obj1 = new Object3D(ref desc);
 
-            //Object3D obj1 = new Object3D(desc);
+            obj1.Vertices = new VerticesData<VertexData_ShapeAndValue>(new VertexData_ShapeAndValue[]
+            {
+                new VertexData_ShapeAndValue(){SV_Position=new Vector3(0f,0f,0f), GC_DataIndex1=0},
+                new VertexData_ShapeAndValue(){SV_Position=new Vector3(0f,1f,0f), GC_DataIndex1=1},
+                new VertexData_ShapeAndValue(){SV_Position=new Vector3(1f,0f,0f), GC_DataIndex1=2}
+            });
+
+            obj1.DownloadVerticesToGPU();
+
+            BufferDescription bDesc = new BufferDescription()
+            {
+                elementSize = 12,
+                numElements = 3
+            };
+
+            Vector3[] bData =
+            {
+                new Vector3(1f,1f,0f),
+                new Vector3(1f,0f,1f),
+                new Vector3(0f,1f,1f)
+            };
+
+            BufferResource buffer = new BufferResource(ref bDesc, bData);
+
+            obj1.SetBuffer(buffer);
 
             //MATVisualizer.Data.UDCLoader.Load(@"AVS1.inp");
         }

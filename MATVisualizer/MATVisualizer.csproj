@@ -63,8 +63,9 @@
     <Compile Include="Data\UDCCellTypeExt.cs" />
     <Compile Include="Data\UDCLoader.cs" />
     <Compile Include="Data\UDCNode.cs" />
+    <Compile Include="Graphics\BufferResource.cs" />
     <Compile Include="Graphics\Core\BindFlag.cs" />
-    <Compile Include="Graphics\Core\Buffer.cs" />
+    <Compile Include="Graphics\Core\_Buffer.cs" />
     <Compile Include="Graphics\Core\BufferDescription.cs" />
     <Compile Include="Graphics\Core\CPUAccessFlag.cs" />
     <Compile Include="Graphics\Core\D3D11_PRIMITIVE_TOPOLOGY.cs" />
@@ -72,8 +73,11 @@
     <Compile Include="Graphics\Core\GraphicsObject.cs" />
     <Compile Include="Graphics\Core\GraphicsObjectDescription.cs" />
     <Compile Include="Graphics\Core\Usage.cs" />
+    <Compile Include="Graphics\Core\VertexData_ShapeAndValue.cs" />
     <Compile Include="Graphics\Core\VertexType.cs" />
     <Compile Include="Graphics\Object3D.cs" />
+    <Compile Include="Graphics\VerticesData.cs" />
+    <Compile Include="Graphics\VerticesDataBase.cs" />
     <Compile Include="HRESULT.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>

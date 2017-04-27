@@ -242,7 +242,7 @@ extern "C"
 			GraphicsCore::pGlobalCBuffer->Update(&GraphicsCore::globalCBufferData);
 
 			// レンダーターゲットビューをクリア
-			float clearColor[4] = { r, 0.15f, 0.15f, 1.0f };
+			float clearColor[4] = { 0.15f, 0.15f, 0.15f, 1.0f };
 			GraphicsCore::pDeviceContext->ClearRenderTargetView(GraphicsCore::pBackBuffer, clearColor);
 
 			GraphicsCore::pDeviceContext->ClearDepthStencilView(GraphicsCore::pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -273,5 +273,10 @@ extern "C"
 	DLL_API void GraphicsCore_Finalize()
 	{
 		finalize = true;
+	}
+
+	DLL_API GraphicsObject* TEST(GraphicsObjectDescription* desc)
+	{
+		return GraphicsObject::Create(desc);
 	}
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MATVisualizer.Graphics.Core
 {
-    public enum VertexType
+    public enum VertexType : uint
     {
         Shape = 1,
         ShapeAndValue = 2,

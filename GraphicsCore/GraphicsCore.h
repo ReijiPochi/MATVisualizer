@@ -51,4 +51,5 @@ extern "C"
 	DLL_API ID3D11Device* GraphicsCore_GetDevice();
 	DLL_API void GraphicsCore_AddToRenderingList(GraphicsObject* object);
 	DLL_API void GraphicsCore_Finalize();
+	DLL_API GraphicsObject* TEST(GraphicsObjectDescription* desc);
 }

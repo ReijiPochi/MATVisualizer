@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MATVisualizer.Graphics.Core
 {
-    public enum D3D11_PRIMITIVE_TOPOLOGY
+    public enum D3D11_PRIMITIVE_TOPOLOGY : uint
     {
         UNDEFINED = 0,
         POINTLIST = 1,
