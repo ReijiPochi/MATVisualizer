@@ -75,6 +75,7 @@
     <Compile Include="Graphics\Core\Usage.cs" />
     <Compile Include="Graphics\Core\VertexData_ShapeAndValue.cs" />
     <Compile Include="Graphics\Core\VertexType.cs" />
+    <Compile Include="Graphics\Grid.cs" />
     <Compile Include="Graphics\Object3D.cs" />
     <Compile Include="Graphics\VerticesData.cs" />
     <Compile Include="Graphics\VerticesDataBase.cs" />

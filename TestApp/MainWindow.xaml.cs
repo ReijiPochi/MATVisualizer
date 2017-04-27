@@ -68,7 +68,7 @@ namespace TestApp
             {
                 new VertexData_ShapeAndValue(){SV_Position=new Vector3(0f,0f,0f), GC_DataIndex1=0},
                 new VertexData_ShapeAndValue(){SV_Position=new Vector3(0f,1f,0f), GC_DataIndex1=1},
-                new VertexData_ShapeAndValue(){SV_Position=new Vector3(1f,0f,0f), GC_DataIndex1=2}
+                new VertexData_ShapeAndValue(){SV_Position=new Vector3(1f,0f,0f), GC_DataIndex1=1}
             });
 
             obj1.DownloadVerticesToGPU();

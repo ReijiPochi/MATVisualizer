@@ -11,6 +11,11 @@ namespace MATVisualizer.Graphics
 {
     public class Object3D
     {
+        protected Object3D()
+        {
+
+        }
+
         public Object3D(ref GraphicsObjectDescription desc)
         {
             GraphicsCore.GetDevice();
