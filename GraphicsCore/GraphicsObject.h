@@ -34,40 +34,37 @@ struct GraphicsObjectDescription
 {
 	VertexType vertexType;
 	D3D11_PRIMITIVE_TOPOLOGY primitiveTopology;
+	ID3D11VertexShader* vs;
+	ID3D11GeometryShader* gs;
+	ID3D11PixelShader* ps;
+	ID3D11InputLayout* inputLayout;
 };
 
 class GraphicsObject : public ReleasableObject
 {
 public:
-	static GraphicsObject* Create(GraphicsObjectDescription* desc);
+	static GraphicsObject* Create(GraphicsObjectDescription desc);
 	HRESULT SetVertices(void* data, UINT length);
+	HRESULT SetIndices(void* data, UINT length);
 	void DownloadBuffers();
 	void Release();
 	bool						isLocking = true;
+	GraphicsObjectDescription	description;
 	VertexType					vertexType;
-	int							numVertices;
-	int							numIndices;
+	UINT						numVertices;
+	UINT						numIndices;
 	D3D11_PRIMITIVE_TOPOLOGY	primitiveTopology;
 	ID3D11Buffer*				pVertexBuffer;
 	ID3D11Buffer*				pIndexBuffer;
-	ID3D11VertexShader*			pVertexShader;
-	ID3D11GeometryShader*		pGeometryShader;
-	ID3D11PixelShader*			pPixelShader;
-	ID3D11InputLayout*			pInputLayout;
 	Texture*					textures[GRAPHICSOBJECT_TEXTURE_MAX];
 	Buffer*						buffers[GRAPHICSOBJECT_BUFFER_MAX];
-
-private:
-	static HRESULT GenerateVertexShaderAndInputLayout(GraphicsObjectDescription* desc, ID3D11VertexShader** ppVS, ID3D11InputLayout** ppinputLayout);
-	static HRESULT GenerateGeometryShader(ID3D11GeometryShader** ppGS);
-	static HRESULT GeneratePixelShader(ID3D11PixelShader** ppPS);
-	static HRESULT CompileShaderFromFile(char* pFileName, LPCSTR pEntryPoint, LPCSTR pShaderModel, ID3DBlob** ppBlob);
 };
 
 extern "C"
 {
-	DLL_API GraphicsObject* GraphicsObject_Create(GraphicsObjectDescription* desc);
+	DLL_API GraphicsObject* GraphicsObject_Create(GraphicsObjectDescription desc);
 	DLL_API HRESULT GraphicsObject_SetVertices(GraphicsObject* object, void* data, UINT length);
+	DLL_API HRESULT GraphicsObject_SetIndices(GraphicsObject* object, void* data, UINT length);
 	DLL_API void GraphicsObject_SetTexture(GraphicsObject* object, int slot, Texture* texture);
 	DLL_API void GraphicsObject_SetBuffer(GraphicsObject* object, int slot, Buffer* buffer);
 }

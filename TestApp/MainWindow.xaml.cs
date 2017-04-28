@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -59,16 +60,24 @@ namespace TestApp
             GraphicsObjectDescription desc = new GraphicsObjectDescription()
             {
                 vertexType = VertexType.ShapeAndValue,
-                primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY.TRIANGLELIST
+                primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY.TRIANGLELIST,
+                vs = new IntPtr(),
+                gs = new IntPtr(),
+                ps = new IntPtr(),
+                inputLayout = new IntPtr()
             };
 
-            Object3D obj1 = new Object3D(ref desc);
+            Shader.GenerateVertexShaderAndInputLayout("Resources/Effects/Sample.fx", "VSFunc", ref desc, out desc.vs, out desc.inputLayout);
+            Shader.GenerateGeometryShader("Resources/Effects/Sample.fx", "GSFunc", out desc.gs);
+            Shader.GeneratePixelShader("Resources/Effects/Sample.fx", "PSFunc", out desc.ps);
+
+            Object3D obj1 = new Object3D(desc);
 
             obj1.Vertices = new VerticesData<VertexData_ShapeAndValue>(new VertexData_ShapeAndValue[]
             {
                 new VertexData_ShapeAndValue(){SV_Position=new Vector3(0f,0f,0f), GC_DataIndex1=0},
                 new VertexData_ShapeAndValue(){SV_Position=new Vector3(0f,1f,0f), GC_DataIndex1=1},
-                new VertexData_ShapeAndValue(){SV_Position=new Vector3(1f,0f,0f), GC_DataIndex1=1}
+                new VertexData_ShapeAndValue(){SV_Position=new Vector3(1f,0f,0f), GC_DataIndex1=2}
             });
 
             obj1.DownloadVerticesToGPU();
@@ -90,7 +99,7 @@ namespace TestApp
 
             obj1.SetBuffer(buffer);
 
-            //MATVisualizer.Data.UDCLoader.Load(@"AVS1.inp");
+            MATVisualizer.Data.UDCLoader.Load(@"AVS1.inp");
         }
 
         private static void Initialize(object handle)

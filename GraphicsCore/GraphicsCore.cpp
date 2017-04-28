@@ -47,7 +47,7 @@ void GraphicsCore::Render()
 			continue;
 
 		// 入力アセンブラに入力レイアウトを設定
-		GraphicsCore::pDeviceContext->IASetInputLayout((*itr)->pInputLayout);
+		GraphicsCore::pDeviceContext->IASetInputLayout((*itr)->description.inputLayout);
 
 		// 入力アセンブラに頂点バッファを設定
 		UINT stride = GetSizeOfVertexType((*itr)->vertexType);
@@ -59,14 +59,22 @@ void GraphicsCore::Render()
 		GraphicsCore::pDeviceContext->IASetPrimitiveTopology((*itr)->primitiveTopology);
 
 		// シェーダを設定
-		GraphicsCore::pDeviceContext->VSSetShader((*itr)->pVertexShader, NULL, 0);
-		GraphicsCore::pDeviceContext->GSSetShader((*itr)->pGeometryShader, NULL, 0);
-		GraphicsCore::pDeviceContext->PSSetShader((*itr)->pPixelShader, NULL, 0);
+		if ((*itr)->description.vs != nullptr)GraphicsCore::pDeviceContext->VSSetShader((*itr)->description.vs, NULL, 0);
+		if ((*itr)->description.gs != nullptr)GraphicsCore::pDeviceContext->GSSetShader((*itr)->description.gs, NULL, 0);
+		if ((*itr)->description.ps != nullptr)GraphicsCore::pDeviceContext->PSSetShader((*itr)->description.ps, NULL, 0);
 
 		GraphicsCore::pGlobalCBuffer->Set();
 		(*itr)->DownloadBuffers();
 
-		GraphicsCore::pDeviceContext->Draw(3, 0);
+		if ((*itr)->numIndices != 0)
+		{
+			GraphicsCore::pDeviceContext->IASetIndexBuffer((*itr)->pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+			GraphicsCore::pDeviceContext->DrawIndexed((*itr)->numIndices, 0, 0);
+		}
+		else
+		{
+			GraphicsCore::pDeviceContext->Draw((*itr)->numVertices, 0);
+		}
 	}
 }
 
@@ -189,6 +197,8 @@ void InitializeDevice()
 	rDesc.FillMode = D3D11_FILL_SOLID;
 	rDesc.DepthClipEnable = true;
 	rDesc.CullMode = D3D11_CULL_NONE;
+	rDesc.AntialiasedLineEnable = true;
+	rDesc.MultisampleEnable = true;
 
 	ID3D11RasterizerState *rasterizerState;
 	{
@@ -277,6 +287,7 @@ extern "C"
 
 	DLL_API GraphicsObject* TEST(GraphicsObjectDescription* desc)
 	{
-		return GraphicsObject::Create(desc);
+		//return GraphicsObject::Create(desc);
+		return nullptr;
 	}
 }

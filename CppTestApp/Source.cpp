@@ -5,6 +5,7 @@
 #include <GraphicsCore.h>
 #include <GraphicsObject.h>
 #include <DataTypesDefinition.h>
+#include <Shader.h>
 
 using namespace std;
 
@@ -29,8 +30,13 @@ void main()
 	ZeroMemory(&goDesc, sizeof(goDesc));
 	goDesc.vertexType = VertexType_ShapeAndValue;
 	goDesc.primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	//goDesc.primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
 
-	GraphicsObject* obj1 = GraphicsObject_Create(&goDesc);
+	Shader_GenerateVertexShaderAndInputLayout("Resources/Effects/Sample.fx", "VSFunc", &goDesc, &goDesc.vs, &goDesc.inputLayout);
+	Shader_GenerateGeometryShader("Resources/Effects/Sample.fx", "GSFunc", &goDesc.gs);
+	Shader_GeneratePixelShader("Resources/Effects/Sample.fx", "PSFunc", &goDesc.ps);
+
+	GraphicsObject* obj1 = GraphicsObject_Create(goDesc);
 	printf("A Object was generated. \n");
 
 	VertexData_ShapeAndValue vertices[]
@@ -38,9 +44,14 @@ void main()
 		{Vector3(0.0f,0.0f,0.0f), 0},
 		{Vector3(0.0f,1.0f,0.0f), 1},
 		{Vector3(1.0f,0.0f,0.0f), 2},
+		//{ Vector3(0.0f,0.0f,-1.0f), 2 }
 	};
 
-	GraphicsObject_SetVertices(obj1, vertices, 3);
+	GraphicsObject_SetVertices(obj1, vertices, 4);
+
+	//UINT indices[]{ 0,1,2,1,3,2 };
+
+	//GraphicsObject_SetIndices(obj1, indices, 6);
 
 	Vector3 data[]
 	{

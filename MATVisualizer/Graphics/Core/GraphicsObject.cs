@@ -11,7 +11,7 @@ namespace MATVisualizer.Graphics.Core
     public class GraphicsObject
     {
         [DllImport("GraphicsCore.dll", EntryPoint = "GraphicsObject_Create", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        public static extern IntPtr Create(ref GraphicsObjectDescription desc);
+        public static extern IntPtr Create(GraphicsObjectDescription desc);
 
         [DllImport("GraphicsCore.dll", EntryPoint = "GraphicsObject_SetVertices", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern HRESULT SetVertices(IntPtr obj, IntPtr data, uint length);

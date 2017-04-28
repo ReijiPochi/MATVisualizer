@@ -12,5 +12,9 @@ namespace MATVisualizer.Graphics.Core
     {
         public VertexType vertexType;
         public D3D11_PRIMITIVE_TOPOLOGY primitiveTopology;
+        public IntPtr vs;
+        public IntPtr gs;
+        public IntPtr ps;
+        public IntPtr inputLayout;
     }
 }

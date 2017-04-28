@@ -16,10 +16,10 @@ namespace MATVisualizer.Graphics
 
         }
 
-        public Object3D(ref GraphicsObjectDescription desc)
+        public Object3D(GraphicsObjectDescription desc)
         {
             GraphicsCore.GetDevice();
-            handle = GraphicsObject.Create(ref desc);
+            handle = GraphicsObject.Create(desc);
             GraphicsCore.AddToRenderingList(handle);
         }
 

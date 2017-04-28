@@ -65,6 +65,7 @@
     <Compile Include="Data\UDCNode.cs" />
     <Compile Include="Graphics\BufferResource.cs" />
     <Compile Include="Graphics\Core\BindFlag.cs" />
+    <Compile Include="Graphics\Core\Shader.cs" />
     <Compile Include="Graphics\Core\_Buffer.cs" />
     <Compile Include="Graphics\Core\BufferDescription.cs" />
     <Compile Include="Graphics\Core\CPUAccessFlag.cs" />
