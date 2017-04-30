@@ -16,10 +16,16 @@ namespace MATVisualizer.Graphics.Core
         [DllImport("GraphicsCore.dll", EntryPoint = "GraphicsObject_SetVertices", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern HRESULT SetVertices(IntPtr obj, IntPtr data, uint length);
 
+        [DllImport("GraphicsCore.dll", EntryPoint = "GraphicsObject_SetIndices", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern HRESULT SetIndices(IntPtr obj, IntPtr data, uint length);
+
         [DllImport("GraphicsCore.dll", EntryPoint = "GraphicsObject_SetTexture", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern void SetTexture(IntPtr obj, int slot, IntPtr texture);
 
         [DllImport("GraphicsCore.dll", EntryPoint = "GraphicsObject_SetBuffer", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern void SetBuffer(IntPtr obj, int slot, IntPtr buffer);
+
+        [DllImport("GraphicsCore.dll", EntryPoint = "GraphicsObject_SetLock", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void SetLock(IntPtr obj, bool locking);
     }
 }

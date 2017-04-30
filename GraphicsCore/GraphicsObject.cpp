@@ -52,8 +52,6 @@ GraphicsObject* GraphicsObject::Create(GraphicsObjectDescription desc)
 	go->primitiveTopology = desc.primitiveTopology;
 	go->vertexType = desc.vertexType;
 
-	go->isLocking = false;
-
 	return go;
 }
 
@@ -172,4 +170,9 @@ DLL_API void GraphicsObject_SetTexture(GraphicsObject* object, int slot, Texture
 DLL_API void GraphicsObject_SetBuffer(GraphicsObject* object, int slot, Buffer* buffer)
 {
 	object->buffers[slot] = buffer;
+}
+
+DLL_API void GraphicsObject_SetLock(GraphicsObject* object, bool lock)
+{
+	object->isLocking = lock;
 }

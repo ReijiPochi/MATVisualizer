@@ -1,3 +1,3 @@
 #pragma once
 
-#define DLL_API __declspec(dllexport)
+#define DLL_API extern "C" __declspec(dllexport)

@@ -19,7 +19,5 @@ public:
 	ID3D11ShaderResourceView* shaderResource;
 };
 
-extern "C"
-{
-	DLL_API Buffer* Buffer_Create(BufferDescription* desc, void* data);
-}
+
+DLL_API Buffer* Buffer_Create(BufferDescription* desc, void* data);

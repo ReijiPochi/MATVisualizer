@@ -1,23 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using MATVisualizer.Graphics.Core;
-using System.Runtime.InteropServices;
 
 namespace MATVisualizer.Graphics
 {
-    public class VerticesData<T> : VerticesData
+    public class IndicesData<T> : IndicesData
     {
-        public VerticesData(T[] _data)
+        public IndicesData(T[] _data)
         {
             if (_data != null)
             {
                 data = _data;
                 GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
                 Pointer = handle.AddrOfPinnedObject();
-                NumVertices = (uint)data.LongLength;
+                NumIndices = (uint)data.LongLength;
             }
         }
 

@@ -1,4 +1,5 @@
-﻿using MATVisualizer.Graphics;
+﻿using MATVisualizer.Data;
+using MATVisualizer.Graphics;
 using MATVisualizer.Graphics.Core;
 using System;
 using System.Collections.Generic;
@@ -41,70 +42,15 @@ namespace TestApp
 
         private void Current_Exit(object sender, ExitEventArgs e)
         {
-            GraphicsCore.GraphicsCore_Finalize();
-            graphicsThread?.Join();
+            
         }
-
-        Thread graphicsThread;
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            Window graphicsWindow = new Window();
-            graphicsWindow.Show();
-
-            HwndSource source = (HwndSource)HwndSource.FromVisual(graphicsWindow);
-
-            graphicsThread = new Thread(Initialize);
-            graphicsThread.Start(source.Handle);
-
-            GraphicsObjectDescription desc = new GraphicsObjectDescription()
-            {
-                vertexType = VertexType.ShapeAndValue,
-                primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY.TRIANGLELIST,
-                vs = new IntPtr(),
-                gs = new IntPtr(),
-                ps = new IntPtr(),
-                inputLayout = new IntPtr()
-            };
-
-            Shader.GenerateVertexShaderAndInputLayout("Resources/Effects/Sample.fx", "VSFunc", ref desc, out desc.vs, out desc.inputLayout);
-            Shader.GenerateGeometryShader("Resources/Effects/Sample.fx", "GSFunc", out desc.gs);
-            Shader.GeneratePixelShader("Resources/Effects/Sample.fx", "PSFunc", out desc.ps);
-
-            Object3D obj1 = new Object3D(desc);
-
-            obj1.Vertices = new VerticesData<VertexData_ShapeAndValue>(new VertexData_ShapeAndValue[]
-            {
-                new VertexData_ShapeAndValue(){SV_Position=new Vector3(0f,0f,0f), GC_DataIndex1=0},
-                new VertexData_ShapeAndValue(){SV_Position=new Vector3(0f,1f,0f), GC_DataIndex1=1},
-                new VertexData_ShapeAndValue(){SV_Position=new Vector3(1f,0f,0f), GC_DataIndex1=2}
-            });
-
-            obj1.DownloadVerticesToGPU();
-
-            BufferDescription bDesc = new BufferDescription()
-            {
-                elementSize = 12,
-                numElements = 3
-            };
-
-            Vector3[] bData =
-            {
-                new Vector3(1f,1f,0f),
-                new Vector3(1f,0f,1f),
-                new Vector3(0f,1f,1f)
-            };
-
-            BufferResource buffer = new BufferResource(ref bDesc, bData);
-
-            obj1.SetBuffer(buffer);
-
-            MATVisualizer.Data.UDCLoader.Load(@"AVS1.inp");
+            UDC udc = UDCLoader.Load(@"AVS1.inp");
+            Object3D udcObj = udc.ToObject3D();
+            Render.AddObject(udcObj);
         }
 
-        private static void Initialize(object handle)
-        {
-            GraphicsCore.Initialize((IntPtr)handle);
-        }
     }
 }

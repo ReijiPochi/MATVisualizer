@@ -4,6 +4,7 @@
 
 #include <GraphicsCore.h>
 #include <GraphicsObject.h>
+#include <Camera.h>
 #include <DataTypesDefinition.h>
 #include <Shader.h>
 
@@ -21,10 +22,19 @@ void main()
 	//printf("ModuleHandle : %x \n", GraphicsCore::hInst);
 	//printf("WindowHandle : %x \n", GraphicsCore::hWnd);
 
-	auto graphicsThread = thread(GraphicsCore_Initialize, hWnd);
+	GraphicsCoreDescription desc;
+	desc.handle = hWnd;
+	desc.width = 500;
+	desc.height = 300;
+
+	auto graphicsThread = thread(GraphicsCore_Initialize, desc);
 	//Initialize(CurrentGraphicsCore.hWnd);
 
 	printf("Initialized GraphicsCore \n");
+
+	Camera* cam = Camera::Create();
+	//cam.SetMatrix();
+	GraphicsCore_SetCamera(cam);
 
 	GraphicsObjectDescription goDesc;
 	ZeroMemory(&goDesc, sizeof(goDesc));
@@ -37,6 +47,7 @@ void main()
 	Shader_GeneratePixelShader("Resources/Effects/Sample.fx", "PSFunc", &goDesc.ps);
 
 	GraphicsObject* obj1 = GraphicsObject_Create(goDesc);
+	obj1->isLocking = false;
 	printf("A Object was generated. \n");
 
 	VertexData_ShapeAndValue vertices[]
@@ -44,14 +55,14 @@ void main()
 		{Vector3(0.0f,0.0f,0.0f), 0},
 		{Vector3(0.0f,1.0f,0.0f), 1},
 		{Vector3(1.0f,0.0f,0.0f), 2},
-		//{ Vector3(0.0f,0.0f,-1.0f), 2 }
+		{ Vector3(0.0f,0.0f,-1.0f), 2 }
 	};
 
 	GraphicsObject_SetVertices(obj1, vertices, 4);
 
-	//UINT indices[]{ 0,1,2,1,3,2 };
+	UINT indices[]{ 0,1,2,1,3,2 };
 
-	//GraphicsObject_SetIndices(obj1, indices, 6);
+	GraphicsObject_SetIndices(obj1, indices, 6);
 
 	Vector3 data[]
 	{
@@ -69,6 +80,8 @@ void main()
 	GraphicsObject_SetBuffer(obj1, 0, pbuffer);
 
 	GraphicsCore_AddToRenderingList(obj1);
+
+	GraphicsCore_Resize(500, 300);
 
 	MSG msg = { 0 };
 	bool debuging = true;

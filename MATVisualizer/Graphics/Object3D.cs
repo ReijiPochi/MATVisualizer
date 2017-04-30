@@ -18,14 +18,31 @@ namespace MATVisualizer.Graphics
 
         public Object3D(GraphicsObjectDescription desc)
         {
-            GraphicsCore.GetDevice();
-            handle = GraphicsObject.Create(desc);
-            GraphicsCore.AddToRenderingList(handle);
+            Create(desc);
         }
 
-        public IntPtr handle;
+        public IntPtr objectHandle;
 
-        public VerticesDataBase Vertices { get; set; }
+        public VerticesData Vertices { get; set; }
+
+        public IndicesData Indices { get; set; }
+
+        protected void Create(GraphicsObjectDescription desc)
+        {
+            objectHandle = GraphicsObject.Create(desc);
+        }
+
+        public void Lock()
+        {
+            if (objectHandle != IntPtr.Zero)
+                GraphicsObject.SetLock(objectHandle, true);
+        }
+
+        public void Unlock()
+        {
+            if (objectHandle != IntPtr.Zero)
+                GraphicsObject.SetLock(objectHandle, false);
+        }
 
         /// <summary>
         /// 頂点データをグラフィックメモリに転送します。
@@ -33,12 +50,20 @@ namespace MATVisualizer.Graphics
         public void DownloadVerticesToGPU()
         {
             if (Vertices != null)
-                GraphicsObject.SetVertices(handle, Vertices.Pointer, 3);
+                GraphicsObject.SetVertices(objectHandle, Vertices.Pointer, Vertices.NumVertices);
+        }
+
+        public void DownloadIndicesToGPU()
+        {
+            if (Indices != null)
+            {
+                GraphicsObject.SetIndices(objectHandle, Indices.Pointer, Indices.NumIndices);
+            }
         }
 
         public void SetBuffer(BufferResource buffer, int slot = 0)
         {
-            GraphicsObject.SetBuffer(handle, slot, buffer.handle);
+            GraphicsObject.SetBuffer(objectHandle, slot, buffer.handle);
         }
     }
 }

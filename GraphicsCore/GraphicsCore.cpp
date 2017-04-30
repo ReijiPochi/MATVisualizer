@@ -6,6 +6,7 @@
 #include <windows.h>
 #include <cstdio>
 #include <d3d11_4.h>
+#include <dxgi1_5.h>
 #include <d3dcompiler.h>
 
 #pragma comment( lib, "d3d11.lib" )
@@ -26,9 +27,11 @@ ID3D11RenderTargetView* GraphicsCore::pBackBuffer = NULL;
 Texture2D* GraphicsCore::pDepthStencilTexture = NULL;
 ID3D11DepthStencilView* GraphicsCore::pDepthStencilView = NULL;
 
+bool resizing = false, renderingListChanging = false;
+bool rendering = false;
 bool finalize = false;
 
-void InitializeDevice();
+void InitializeDevice(GraphicsCoreDescription desc);
 
 void ReleaseIUnknown(IUnknown** target)
 {
@@ -41,29 +44,52 @@ void ReleaseIUnknown(IUnknown** target)
 
 void GraphicsCore::Render()
 {
+	while (renderingListChanging)
+	{
+		rendering = false;
+	}
+
+	rendering = true;
+
 	for (std::vector<GraphicsObject*>::iterator itr = GraphicsCore::pRenderingList.begin(); itr != GraphicsCore::pRenderingList.end(); ++itr)
 	{
 		if ((*itr)->isLocking)
 			continue;
 
 		// 入力アセンブラに入力レイアウトを設定
-		GraphicsCore::pDeviceContext->IASetInputLayout((*itr)->description.inputLayout);
+		if ((*itr)->description.inputLayout != nullptr)
+			GraphicsCore::pDeviceContext->IASetInputLayout((*itr)->description.inputLayout);
+		else
+			continue;
 
 		// 入力アセンブラに頂点バッファを設定
 		UINT stride = GetSizeOfVertexType((*itr)->vertexType);
 		UINT offset = 0;
-		GraphicsCore::pDeviceContext->IASetVertexBuffers(0, 1, &(*itr)->pVertexBuffer, &stride, &offset);
+		if ((*itr)->pVertexBuffer != nullptr)
+			GraphicsCore::pDeviceContext->IASetVertexBuffers(0, 1, &(*itr)->pVertexBuffer, &stride, &offset);
+		else
+			continue;
 
 
 		// プリミティブの種類を設定
 		GraphicsCore::pDeviceContext->IASetPrimitiveTopology((*itr)->primitiveTopology);
 
 		// シェーダを設定
-		if ((*itr)->description.vs != nullptr)GraphicsCore::pDeviceContext->VSSetShader((*itr)->description.vs, NULL, 0);
-		if ((*itr)->description.gs != nullptr)GraphicsCore::pDeviceContext->GSSetShader((*itr)->description.gs, NULL, 0);
-		if ((*itr)->description.ps != nullptr)GraphicsCore::pDeviceContext->PSSetShader((*itr)->description.ps, NULL, 0);
+		if ((*itr)->description.vs != nullptr)
+			GraphicsCore::pDeviceContext->VSSetShader((*itr)->description.vs, NULL, 0);
+		else
+			continue;
 
-		GraphicsCore::pGlobalCBuffer->Set();
+		if ((*itr)->description.gs != nullptr)
+			GraphicsCore::pDeviceContext->GSSetShader((*itr)->description.gs, NULL, 0);
+		else
+			GraphicsCore::pDeviceContext->GSSetShader(nullptr, NULL, 0);
+
+		if ((*itr)->description.ps != nullptr)
+			GraphicsCore::pDeviceContext->PSSetShader((*itr)->description.ps, NULL, 0);
+		else
+			continue;
+
 		(*itr)->DownloadBuffers();
 
 		if ((*itr)->numIndices != 0)
@@ -95,21 +121,15 @@ void GraphicsCore::Release()
 	ReleaseIUnknown((IUnknown**)&GraphicsCore::pDevice);
 }
 
-void InitializeDevice()
+void InitializeDevice(GraphicsCoreDescription desc)
 {
 	if (!DirectX::XMVerifyCPUSupport()) {
 		MessageBoxA(NULL, "DirectX::XMVerifyCPUSupport() returns FALSE!", NULL, MB_ICONEXCLAMATION | MB_OK);
 		return;
 	}
 
-	// ウィンドウサイズを取得
-	RECT rc;
-	GetClientRect(GraphicsCore::hWnd, &rc);
-	UINT width = rc.right - rc.left;
-	UINT height = rc.bottom - rc.top;
-
-	GraphicsCore::viewWidth = width;
-	GraphicsCore::viewHeight = height;
+	GraphicsCore::viewWidth = desc.width;
+	GraphicsCore::viewHeight = desc.height;
 
 	UINT createDeviceFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 #if defined(DEBUG) || defined(_DEBUG)
@@ -127,8 +147,8 @@ void InitializeDevice()
 	DXGI_SWAP_CHAIN_DESC sd;
 	ZeroMemory(&sd, sizeof(sd));
 	sd.BufferCount = 2;
-	sd.BufferDesc.Width = width;
-	sd.BufferDesc.Height = height;
+	sd.BufferDesc.Width = desc.width;
+	sd.BufferDesc.Height = desc.height;
 	sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	sd.BufferDesc.RefreshRate.Numerator = 60;
 	sd.BufferDesc.RefreshRate.Denominator = 1;
@@ -165,8 +185,8 @@ void InitializeDevice()
 	pBackBuffer = NULL;
 
 	Texture2DDescription depthTexDesc;
-	depthTexDesc.width = width;
-	depthTexDesc.height = height;
+	depthTexDesc.width = desc.width;
+	depthTexDesc.height = desc.height;
 	depthTexDesc.textureFormat = DXGI_FORMAT_R32_TYPELESS;
 	depthTexDesc.resourceFormat = DXGI_FORMAT_R32_FLOAT;
 	depthTexDesc.sample = 4;
@@ -196,7 +216,7 @@ void InitializeDevice()
 	ZeroMemory(&rDesc, sizeof(D3D11_RASTERIZER_DESC));
 	rDesc.FillMode = D3D11_FILL_SOLID;
 	rDesc.DepthClipEnable = true;
-	rDesc.CullMode = D3D11_CULL_NONE;
+	rDesc.CullMode = D3D11_CULL_BACK;
 	rDesc.AntialiasedLineEnable = true;
 	rDesc.MultisampleEnable = true;
 
@@ -210,8 +230,8 @@ void InitializeDevice()
 
 	// ビューポートの設定
 	D3D11_VIEWPORT vp;
-	vp.Width = (FLOAT)width;
-	vp.Height = (FLOAT)height;
+	vp.Width = (FLOAT)desc.width;
+	vp.Height = (FLOAT)desc.height;
 	vp.MinDepth = 0.0f;
 	vp.MaxDepth = 1.0f;
 	vp.TopLeftX = 0;
@@ -228,28 +248,30 @@ void InitializeDevice()
 
 extern "C"
 {
-
-	float r = 0.0;
-
 	// デバイス等を初期化し、GraphicsCoreの機能を使用できるようにします。
 	// HWND handle : 描画結果を出力するウインドウのハンドル
-	DLL_API int GraphicsCore_Initialize(HWND handle)
+	DLL_API int GraphicsCore_Initialize(GraphicsCoreDescription desc)
 	{
-		GraphicsCore::hWnd = handle;
+		GraphicsCore::hWnd = desc.handle;
 		
-		InitializeDevice();
+		InitializeDevice(desc);
 		
 		// メインループ
 		while (!finalize)
 		{
-			GraphicsCore::pCamera->eye = DirectX::XMVectorSet(2.0f * sin(r * 5.0f), 1.0f, -2.0f * cos(r * 5.0f), 0.0f);
-			GraphicsCore::pCamera->target = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-			GraphicsCore::pCamera->up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+			while (resizing)
+			{
+				rendering = false;
+			}
 
-			GraphicsCore::pCamera->SetMatrix();
+			rendering = true;
+
 			GraphicsCore::globalCBufferData.camera = GraphicsCore::pCamera->cameraMatrix;
 
 			GraphicsCore::pGlobalCBuffer->Update(&GraphicsCore::globalCBufferData);
+
+			GraphicsCore::pGlobalCBuffer->Set();
+
 
 			// レンダーターゲットビューをクリア
 			float clearColor[4] = { 0.15f, 0.15f, 0.15f, 1.0f };
@@ -261,8 +283,6 @@ extern "C"
 
 			// フリップ処理
 			GraphicsCore::pSwapChain->Present(1, 0);
-
-			r += 0.001;
 		}
 
 		GraphicsCore::Release();
@@ -277,7 +297,89 @@ extern "C"
 
 	DLL_API void GraphicsCore_AddToRenderingList(GraphicsObject* object)
 	{
+		renderingListChanging = true;
+
+		while (rendering);
+
 		GraphicsCore::pRenderingList.push_back(object);
+
+		renderingListChanging = false;
+	}
+
+	DLL_API void GraphicsCore_SetCamera(Camera* camera)
+	{
+		GraphicsCore::pCamera = camera;
+	}
+
+	DLL_API HRESULT GraphicsCore_Resize(int width, int height)
+	{
+		resizing = true;
+
+		while (rendering);
+
+
+		ReleaseIUnknown((IUnknown**)&GraphicsCore::pBackBuffer);
+		ReleaseIUnknown((IUnknown**)&GraphicsCore::pDepthStencilView);
+		GraphicsCore::pDepthStencilTexture->Release();
+
+		HRESULT result = GraphicsCore::pSwapChain->ResizeBuffers(1, width, height, DXGI_FORMAT_R8G8B8A8_UNORM, 0);
+
+		// バックバッファーを取得
+		ID3D11Texture2D* pBackBuffer = NULL;
+		{
+			GraphicsCore::pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
+
+			// レンダーターゲットビューを生成
+			GraphicsCore::pDevice->CreateRenderTargetView(pBackBuffer, NULL, &GraphicsCore::pBackBuffer);
+		}
+		pBackBuffer->Release();
+		pBackBuffer = NULL;
+
+		Texture2DDescription depthTexDesc;
+		depthTexDesc.width = width;
+		depthTexDesc.height = height;
+		depthTexDesc.textureFormat = DXGI_FORMAT_R32_TYPELESS;
+		depthTexDesc.resourceFormat = DXGI_FORMAT_R32_FLOAT;
+		depthTexDesc.sample = 4;
+		depthTexDesc.bindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+
+		GraphicsCore::pDepthStencilTexture = Texture2D::Create(depthTexDesc);
+
+		D3D11_DEPTH_STENCIL_VIEW_DESC depthDesc;
+		ZeroMemory(&depthDesc, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
+		depthDesc.Format = DXGI_FORMAT_D32_FLOAT;
+		if (depthTexDesc.sample == 0)
+		{
+			depthDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+			depthDesc.Texture2D.MipSlice = 0;
+		}
+		else
+		{
+			depthDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
+		}
+
+		GraphicsCore::pDevice->CreateDepthStencilView(GraphicsCore::pDepthStencilTexture->texture, &depthDesc, &GraphicsCore::pDepthStencilView);
+
+		// 出力マネージャにレンダーターゲットビューを設定
+		GraphicsCore::pDeviceContext->OMSetRenderTargets(1, &GraphicsCore::pBackBuffer, GraphicsCore::pDepthStencilView);
+
+
+		// ビューポートの設定
+		D3D11_VIEWPORT vp;
+		vp.Width = (FLOAT)width;
+		vp.Height = (FLOAT)height;
+		vp.MinDepth = 0.0f;
+		vp.MaxDepth = 1.0f;
+		vp.TopLeftX = 0;
+		vp.TopLeftY = 0;
+		GraphicsCore::pDeviceContext->RSSetViewports(1, &vp);
+
+		GraphicsCore::viewWidth = width;
+		GraphicsCore::viewHeight = height;
+
+		resizing = false;
+
+		return result;
 	}
 
 	DLL_API void GraphicsCore_Finalize()

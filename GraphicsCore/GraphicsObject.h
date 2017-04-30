@@ -60,11 +60,9 @@ public:
 	Buffer*						buffers[GRAPHICSOBJECT_BUFFER_MAX];
 };
 
-extern "C"
-{
-	DLL_API GraphicsObject* GraphicsObject_Create(GraphicsObjectDescription desc);
-	DLL_API HRESULT GraphicsObject_SetVertices(GraphicsObject* object, void* data, UINT length);
-	DLL_API HRESULT GraphicsObject_SetIndices(GraphicsObject* object, void* data, UINT length);
-	DLL_API void GraphicsObject_SetTexture(GraphicsObject* object, int slot, Texture* texture);
-	DLL_API void GraphicsObject_SetBuffer(GraphicsObject* object, int slot, Buffer* buffer);
-}
+DLL_API GraphicsObject* GraphicsObject_Create(GraphicsObjectDescription desc);
+DLL_API HRESULT GraphicsObject_SetVertices(GraphicsObject* object, void* data, UINT length);
+DLL_API HRESULT GraphicsObject_SetIndices(GraphicsObject* object, void* data, UINT length);
+DLL_API void GraphicsObject_SetTexture(GraphicsObject* object, int slot, Texture* texture);
+DLL_API void GraphicsObject_SetBuffer(GraphicsObject* object, int slot, Buffer* buffer);
+DLL_API void GraphicsObject_SetLock(GraphicsObject* object, bool lock);

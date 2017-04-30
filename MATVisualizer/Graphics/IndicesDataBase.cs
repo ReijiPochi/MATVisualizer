@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace MATVisualizer.Graphics
 {
-    public abstract class VerticesData : IDisposable
+    public abstract class IndicesData : IDisposable
     {
         public IntPtr Pointer { get; protected set; }
-        public uint NumVertices { get; protected set; }
+        public uint NumIndices { get; protected set; }
         public abstract void Dispose();
     }
 }

@@ -13,8 +13,12 @@
 #include <DirectXMathMatrix.inl>
 
 
-#define GRAPHICS_OBJECT_MAX_COUNT (128)
-
+struct GraphicsCoreDescription
+{
+	HWND handle;
+	int width;
+	int height;
+};
 
 struct GlobalCBufferData
 {
@@ -45,11 +49,10 @@ public:
 
 void ReleaseIUnknown(IUnknown** target);
 
-extern "C"
-{
-	DLL_API int GraphicsCore_Initialize(HWND handle);
-	DLL_API ID3D11Device* GraphicsCore_GetDevice();
-	DLL_API void GraphicsCore_AddToRenderingList(GraphicsObject* object);
-	DLL_API void GraphicsCore_Finalize();
-	DLL_API GraphicsObject* TEST(GraphicsObjectDescription* desc);
-}
+DLL_API int GraphicsCore_Initialize(GraphicsCoreDescription desc);
+DLL_API ID3D11Device* GraphicsCore_GetDevice();
+DLL_API void GraphicsCore_AddToRenderingList(GraphicsObject* object);
+DLL_API void GraphicsCore_SetCamera(Camera* camera);
+DLL_API HRESULT GraphicsCore_Resize(int width, int height);
+DLL_API void GraphicsCore_Finalize();
+DLL_API GraphicsObject* TEST(GraphicsObjectDescription* desc);

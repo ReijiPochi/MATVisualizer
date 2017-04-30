@@ -64,20 +64,24 @@
     <Compile Include="Data\UDCLoader.cs" />
     <Compile Include="Data\UDCNode.cs" />
     <Compile Include="Graphics\BufferResource.cs" />
-    <Compile Include="Graphics\Core\BindFlag.cs" />
+    <Compile Include="Graphics\Camera.cs" />
+    <Compile Include="Graphics\CameraPerspective.cs" />
+    <Compile Include="Graphics\Core\GraphicsCoreDescription.cs" />
+    <Compile Include="Graphics\Core\_Camera.cs" />
     <Compile Include="Graphics\Core\Shader.cs" />
     <Compile Include="Graphics\Core\_Buffer.cs" />
     <Compile Include="Graphics\Core\BufferDescription.cs" />
-    <Compile Include="Graphics\Core\CPUAccessFlag.cs" />
     <Compile Include="Graphics\Core\D3D11_PRIMITIVE_TOPOLOGY.cs" />
     <Compile Include="Graphics\Core\GraphicsCore.cs" />
     <Compile Include="Graphics\Core\GraphicsObject.cs" />
     <Compile Include="Graphics\Core\GraphicsObjectDescription.cs" />
-    <Compile Include="Graphics\Core\Usage.cs" />
-    <Compile Include="Graphics\Core\VertexData_ShapeAndValue.cs" />
+    <Compile Include="Graphics\Core\VertexData_ShapeAndIndex.cs" />
     <Compile Include="Graphics\Core\VertexType.cs" />
     <Compile Include="Graphics\Grid.cs" />
+    <Compile Include="Graphics\IndicesData.cs" />
+    <Compile Include="Graphics\IndicesDataBase.cs" />
     <Compile Include="Graphics\Object3D.cs" />
+    <Compile Include="Graphics\Render.cs" />
     <Compile Include="Graphics\VerticesData.cs" />
     <Compile Include="Graphics\VerticesDataBase.cs" />
     <Compile Include="HRESULT.cs" />
@@ -95,6 +99,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Vertex.cs" />
+    <Compile Include="ViewControl.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -104,6 +109,11 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Page Include="Themes\Generic.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
