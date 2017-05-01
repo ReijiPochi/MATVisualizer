@@ -56,17 +56,21 @@ namespace TestApp
 
             Neuron Nu1 = new Neuron(u1);
             Neuron Nu2 = new Neuron(u2);
+            Neuron Const1 = new Neuron() { IsConstant = true, OutputValue = 1.0 };
 
             Neuron X1 = new Neuron();
             Neuron X2 = new Neuron();
+            Neuron Const2 = new Neuron() { IsConstant = true, OutputValue = 1.0 };
 
             Neuron Y1 = new Neuron();
 
-            Neuron.Connect(Nu1, X1, X2);
-            Neuron.Connect(Nu2, X1, X2);
+            Nu1.Connect(X1, X2);
+            Nu2.Connect(X1, X2);
+            Const1.Connect(X1, X2);
 
-            Neuron.Connect(X1, Y1);
-            Neuron.Connect(X2, Y1);
+            X1.Connect(Y1);
+            X2.Connect(Y1);
+            Const2.Connect(Y1);
 
             double[] error = new double[4];
 
