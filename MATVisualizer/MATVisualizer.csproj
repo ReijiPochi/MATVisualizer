@@ -55,6 +55,7 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\ColorConverter.cs" />
     <Compile Include="Data\UDC.cs" />
     <Compile Include="Data\UDCDataRepetitionType.cs" />
     <Compile Include="Data\UDCDataRepetitionTypeExt.cs" />

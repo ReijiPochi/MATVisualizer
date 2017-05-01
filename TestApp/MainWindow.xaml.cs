@@ -50,6 +50,62 @@ namespace TestApp
             UDC udc = UDCLoader.Load(@"AVS1.inp");
             Object3D udcObj = udc.ToObject3D();
             Render.AddObject(udcObj);
+
+            NeuronInputPort u1 = new NeuronInputPort() { Wait = 1.0 };
+            NeuronInputPort u2 = new NeuronInputPort() { Wait = 1.0 };
+
+            Neuron Nu1 = new Neuron(u1);
+            Neuron Nu2 = new Neuron(u2);
+
+            Neuron X1 = new Neuron();
+            Neuron X2 = new Neuron();
+
+            Neuron Y1 = new Neuron();
+
+            Neuron.Connect(Nu1, X1, X2);
+            Neuron.Connect(Nu2, X1, X2);
+
+            Neuron.Connect(X1, Y1);
+            Neuron.Connect(X2, Y1);
+
+            double[] error = new double[4];
+
+            for(int study = 0; study < 10; study++)
+            {
+                double input1 = Math.Floor((study % 4) / 2.0);
+                double input2 = study % 2;
+                double t = Math.Abs(input1 - input2);
+
+                u1.Input(input1);
+                u2.Input(input2);
+
+                X1.DoWork();
+                X2.DoWork();
+
+                Y1.DoWork();
+
+                error[0] = Y1.OutputValue - t;
+
+                double E = 0;
+
+                foreach(double ex in error)
+                {
+                    E += ex;
+                }
+
+                E /= error.Length;
+
+
+
+
+
+                for(int i = 3; i > 0; i--)
+                {
+                    error[i] = error[i - 1];
+                }
+            }
+
+            
         }
 
     }

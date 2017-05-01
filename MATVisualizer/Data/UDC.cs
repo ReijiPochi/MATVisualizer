@@ -127,7 +127,7 @@ namespace MATVisualizer.Data
                 vertexIndex++;
 
 
-                buffer[dataIndex] = new Vector3(cell.Data[0] * 50 + 0.5f, cell.Data[1] * 50 + 0.5f, cell.Data[2] * 50 + 0.5f);
+                buffer[dataIndex] = ColorConverter.HSVtoRGB(new Vector3(0.7f - cell.Data[3] * 20, 1f, 1f));
                 dataIndex++;
 
                 //if (dataIndex > 0)
@@ -137,7 +137,7 @@ namespace MATVisualizer.Data
             GraphicsObjectDescription desc = new GraphicsObjectDescription()
             {
                 vertexType = VertexType.ShapeAndValue,
-                primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY.TRIANGLELIST,
+                primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY.LINELIST,
             };
 
             Shader.GenerateVertexShaderAndInputLayout("Resources/Effects/Sample.fx", "VSFunc", ref desc, out desc.vs, out desc.inputLayout);

@@ -8,7 +8,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type local:ViewControl}">
-                    <Border Background="#FF101010"/>
+                    <Border Background="#FF5F5F5F"/>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
