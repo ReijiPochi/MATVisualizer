@@ -14,8 +14,16 @@ namespace TestApp
             Wait = rand.NextDouble();
         }
 
+        public static void ClearAllValue()
+        {
+            foreach(NeuronInputPort port in allPorts)
+            {
+                port.ClearValue();
+            }
+        }
+
         private static Random rand = new Random();
-        private List<NeuronInputPort> allPorts = new List<NeuronInputPort>();
+        private static List<NeuronInputPort> allPorts = new List<NeuronInputPort>();
 
         public double Wait { get; set; }
         public double Value { get; private set; }
@@ -23,6 +31,11 @@ namespace TestApp
         public void Input(double value)
         {
             Value += Wait * value;
+        }
+
+        public void ClearValue()
+        {
+            Value = 0;
         }
     }
 }

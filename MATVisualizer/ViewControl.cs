@@ -164,8 +164,8 @@ namespace MATVisualizer
             {
                 Point position = PointToScreen(new Point(0, 0));
 
-                viewWindow.Left = position.X;
-                viewWindow.Top = position.Y;
+                viewWindow.Left = position.X / Render.ZoomDispX;
+                viewWindow.Top = position.Y / Render.ZoomDispY;
             }
         }
 

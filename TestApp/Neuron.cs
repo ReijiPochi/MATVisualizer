@@ -29,6 +29,8 @@ namespace TestApp
         public OutputFunction F { get; set; }
         public double Threshold { get; set; }
         public bool IsConstant { get; set; }
+        public static double alpha = 0.5;
+        public static double beta = 0.5;
 
         private static Random rand = new Random();
 
@@ -68,11 +70,19 @@ namespace TestApp
         }
 
 
-        public void BP(double error)
+        public void BP_v(double error)
         {
             foreach(NeuronInputPort port in Input)
             {
+                port.Wait += alpha * error * (1.0 - OutputValue) * OutputValue * port.Value;
+            }
+        }
 
+        public void BP_w(double error, Neuron y)
+        {
+            foreach(NeuronInputPort port in Input)
+            {
+                port.Wait += beta * error * (1.0 - y.OutputValue) * y.OutputValue * Neuron.GetWait(this, y) * (1 - OutputValue) * OutputValue * port.Value;
             }
         }
 
@@ -84,6 +94,22 @@ namespace TestApp
                 OutputTo.Add(port);
                 n.Input.Add(port);
             }
+        }
+
+        public static double GetWait(Neuron n1, Neuron n2)
+        {
+            foreach(NeuronInputPort port in n1.OutputTo)
+            {
+                foreach(NeuronInputPort target in n2.Input)
+                {
+                    if(port == target)
+                    {
+                        return target.Wait;
+                    }
+                }
+            }
+
+            return 0;
         }
     }
 }

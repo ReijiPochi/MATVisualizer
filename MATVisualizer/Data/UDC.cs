@@ -137,7 +137,7 @@ namespace MATVisualizer.Data
             GraphicsObjectDescription desc = new GraphicsObjectDescription()
             {
                 vertexType = VertexType.ShapeAndValue,
-                primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY.LINELIST,
+                primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY.TRIANGLELIST,
             };
 
             Shader.GenerateVertexShaderAndInputLayout("Resources/Effects/Sample.fx", "VSFunc", ref desc, out desc.vs, out desc.inputLayout);
