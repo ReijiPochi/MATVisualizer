@@ -144,10 +144,12 @@ namespace MATVisualizer
             Render.Initialize(viewWindow);
 
 
-            camera = new CameraPerspective();
-            camera.Eye = new Vector3(0.5f, 0.5f, 0.5f);
-            camera.Target = Vector3.Zero;
-            camera.FieldOfView = 80.0;
+            camera = new CameraPerspective()
+            {
+                Eye = new Vector3(0.5f, 0.5f, 0.5f),
+                Target = Vector3.Zero,
+                FieldOfView = 80.0
+            };
             camera.UpdateCamera();
 
             Render.SetCamera(camera);

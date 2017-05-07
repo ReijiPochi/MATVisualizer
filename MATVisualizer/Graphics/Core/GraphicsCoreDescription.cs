@@ -13,5 +13,6 @@ namespace MATVisualizer.Graphics.Core
         public IntPtr handle;
         public int width;
         public int height;
+        RenderCallback callback;
     }
 }

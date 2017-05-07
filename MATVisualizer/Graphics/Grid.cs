@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MATVisualizer.Graphics
 {
-    public class Grid : Object3D
+    public class Grid : SolidObject
     {
         public Grid(int num, float pitch) : base()
         {
@@ -26,7 +26,7 @@ namespace MATVisualizer.Graphics
 
             Vertices = GenVertices(num, pitch);
 
-            DownloadVerticesToGPU();
+            DownloadShape();
 
             BufferDescription bDesc = new BufferDescription()
             {

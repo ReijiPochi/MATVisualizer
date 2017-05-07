@@ -71,7 +71,7 @@ namespace MATVisualizer.Data
                 Cells = new UDCCell[CellCount];
         }
 
-        public Object3D ToObject3D()
+        public Object3D ToSolidObject()
         {
             VertexData_ShapeAndIndex[] vertices = new VertexData_ShapeAndIndex[CellCount * 12];
             Vector3[] buffer = new Vector3[CellCount];
@@ -144,10 +144,10 @@ namespace MATVisualizer.Data
             //Shader.GenerateGeometryShader("Resources/Effects/Sample.fx", "GSFunc", out desc.gs);
             Shader.GeneratePixelShader("Resources/Effects/Sample.fx", "PSFunc", out desc.ps);
 
-            Object3D obj1 = new Object3D(desc);
+            SolidObject obj1 = new SolidObject(desc);
 
             obj1.Vertices = new VerticesData<VertexData_ShapeAndIndex>(vertices);
-            obj1.DownloadVerticesToGPU();
+            obj1.DownloadShape();
 
             BufferDescription bufferDesc = new BufferDescription()
             {

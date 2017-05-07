@@ -6,6 +6,8 @@
 
 #pragma comment(lib, "d3dcompiler.lib")
 
+
+
 UINT GetSizeOfVertexType(VertexType type)
 {
 	switch (type)
@@ -55,9 +57,40 @@ GraphicsObject* GraphicsObject::Create(GraphicsObjectDescription desc)
 	return go;
 }
 
-HRESULT GraphicsObject::SetVertices(void* data, UINT length)
+HRESULT GraphicsObject::SetShape(int slot, void* vertex, UINT numVertex, void* index, UINT numIndex)
 {
-	numVertices = length;
+	VertexAndIndex* shape = new VertexAndIndex;
+	ZeroMemory(shape, sizeof(VertexAndIndex));
+
+	HRESULT hr = SetVertices(shape, vertex, numVertex);
+
+	if (FAILED(hr))
+	{
+		return hr;
+	}
+
+
+	if (numIndex == 0)
+	{
+		shapes[slot] = shape;
+		return hr;
+	}
+
+	hr = SetIndices(shape, index, numIndex);
+
+	if (FAILED(hr))
+	{
+		return hr;
+	}
+
+	shapes[slot] = shape;
+
+	return hr;
+}
+
+HRESULT GraphicsObject::SetVertices(VertexAndIndex* shape, void* data, UINT length)
+{
+	shape->numVertices = length;
 
 	// 頂点バッファの設定
 	D3D11_BUFFER_DESC bd;
@@ -86,17 +119,17 @@ HRESULT GraphicsObject::SetVertices(void* data, UINT length)
 	initData.pSysMem = data;
 
 	// 頂点バッファ生成
-	if (pVertexBuffer != NULL)
+	if (shape->vertexBuffer != NULL)
 	{
-		pVertexBuffer->Release();
-		pVertexBuffer = NULL;
+		shape->vertexBuffer->Release();
+		shape->vertexBuffer = NULL;
 	}
-	return GraphicsCore::pDevice->CreateBuffer(&bd, &initData, &pVertexBuffer);
+	return GraphicsCore::pDevice->CreateBuffer(&bd, &initData, &shape->vertexBuffer);
 }
 
-HRESULT GraphicsObject::SetIndices(void* data, UINT length)
+HRESULT GraphicsObject::SetIndices(VertexAndIndex* shape, void* data, UINT length)
 {
-	numIndices = length;
+	shape->numIndices = length;
 
 	D3D11_BUFFER_DESC bd;
 	ZeroMemory(&bd, sizeof(bd));
@@ -111,12 +144,12 @@ HRESULT GraphicsObject::SetIndices(void* data, UINT length)
 	initData.pSysMem = data;
 
 	// 頂点バッファ生成
-	if (pIndexBuffer != NULL)
+	if (shape->indexBuffer != NULL)
 	{
-		pIndexBuffer->Release();
-		pIndexBuffer = NULL;
+		shape->indexBuffer->Release();
+		shape->indexBuffer = NULL;
 	}
-	return GraphicsCore::pDevice->CreateBuffer(&bd, &initData, &pIndexBuffer);
+	return GraphicsCore::pDevice->CreateBuffer(&bd, &initData, &shape->indexBuffer);
 }
 
 void GraphicsObject::DownloadBuffers()
@@ -133,14 +166,22 @@ void GraphicsObject::DownloadBuffers()
 	}
 }
 
-void GraphicsObject::Release()
+	void GraphicsObject::Release()
 {
 	isLocking = true;
 
 	ReleasableObject::Release();
 
-	ReleaseIUnknown((IUnknown**)&pVertexBuffer);
-	ReleaseIUnknown((IUnknown**)&pIndexBuffer);
+	for (int i = 0; i < GRAPHICSOBJECT_SHAPE_MAX; i++)
+	{
+		if (shapes[i] != nullptr)
+		{
+			ReleaseIUnknown((IUnknown**)&shapes[i]->vertexBuffer);
+			ReleaseIUnknown((IUnknown**)&shapes[i]->indexBuffer);
+		}
+	}
+
+
 	ReleaseIUnknown((IUnknown**)&description.vs);
 	ReleaseIUnknown((IUnknown**)&description.gs);
 	ReleaseIUnknown((IUnknown**)&description.ps);
@@ -152,14 +193,9 @@ DLL_API GraphicsObject* GraphicsObject_Create(GraphicsObjectDescription desc)
 	return GraphicsObject::Create(desc);
 }
 
-DLL_API HRESULT GraphicsObject_SetVertices(GraphicsObject* object, void* data, UINT length)
+DLL_API HRESULT GraphicsObject_SetShape(GraphicsObject* object, int slot, void* vertex, UINT numVertex, void* index, UINT numIndex)
 {
-	return object->SetVertices(data, length);
-}
-
-DLL_API HRESULT GraphicsObject_SetIndices(GraphicsObject* object, void* data, UINT length)
-{
-	return object->SetIndices(data, length);
+	return object->SetShape(slot, vertex, numVertex, index, numIndex);
 }
 
 DLL_API void GraphicsObject_SetTexture(GraphicsObject* object, int slot, Texture* texture)

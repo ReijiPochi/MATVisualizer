@@ -6,13 +6,12 @@
 class Camera
 {
 public:
-	static Camera* Create();
-	void SetMatrix();
 	DirectX::XMVECTOR eye = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
 	DirectX::XMVECTOR target = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
 	DirectX::XMVECTOR up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-	float fov;
+	float fov = 90.0f;
 	DirectX::XMMATRIX cameraMatrix;
+	void SetMatrix();
 };
 
 DLL_API Camera* Camera_Create();

@@ -32,9 +32,9 @@ void main()
 
 	printf("Initialized GraphicsCore \n");
 
-	Camera* cam = Camera::Create();
-	//cam.SetMatrix();
-	GraphicsCore_SetCamera(cam);
+	//Camera* cam = new Camera;
+	//cam->SetMatrix();
+	//GraphicsCore_SetCamera(cam);
 
 	GraphicsObjectDescription goDesc;
 	ZeroMemory(&goDesc, sizeof(goDesc));
@@ -58,11 +58,9 @@ void main()
 		{ Vector3(0.0f,0.0f,-1.0f), 2 }
 	};
 
-	GraphicsObject_SetVertices(obj1, vertices, 4);
-
 	UINT indices[]{ 0,1,2,1,3,2 };
 
-	GraphicsObject_SetIndices(obj1, indices, 6);
+	GraphicsObject_SetShape(obj1, 0, vertices, 4, indices, 6);
 
 	Vector3 data[]
 	{

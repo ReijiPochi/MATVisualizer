@@ -9,23 +9,9 @@ using System.Runtime.InteropServices;
 
 namespace MATVisualizer.Graphics
 {
-    public class Object3D
+    public abstract class Object3D
     {
-        protected Object3D()
-        {
-
-        }
-
-        public Object3D(GraphicsObjectDescription desc)
-        {
-            Create(desc);
-        }
-
         public IntPtr objectHandle;
-
-        public VerticesData Vertices { get; set; }
-
-        public IndicesData Indices { get; set; }
 
         protected void Create(GraphicsObjectDescription desc)
         {
@@ -44,22 +30,7 @@ namespace MATVisualizer.Graphics
                 GraphicsObject.SetLock(objectHandle, false);
         }
 
-        /// <summary>
-        /// 頂点データをグラフィックメモリに転送します。
-        /// </summary>
-        public void DownloadVerticesToGPU()
-        {
-            if (Vertices != null)
-                GraphicsObject.SetVertices(objectHandle, Vertices.Pointer, Vertices.NumVertices);
-        }
-
-        public void DownloadIndicesToGPU()
-        {
-            if (Indices != null)
-            {
-                GraphicsObject.SetIndices(objectHandle, Indices.Pointer, Indices.NumIndices);
-            }
-        }
+        public abstract void DownloadShape();
 
         public void SetBuffer(BufferResource buffer, int slot = 0)
         {

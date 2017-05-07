@@ -60,5 +60,57 @@ namespace MATVisualizer.Data
 
             return rgb;
         }
+
+        public static Vector3 HSVtoRGB(float h, float s, float v)
+        {
+            Vector3 rgb = new Vector3(v);
+
+            if (h > 1.0f) h = 1.0f;
+            else if (h < 0.0f) h = 0.0f;
+
+            h *= 6.0f;
+            int i = (int)h;
+
+            float f = h - i;
+
+            switch (i)
+            {
+                case 0:
+                    rgb.Y *= 1 - s * (1 - f);
+                    rgb.Z *= 1 - s;
+                    break;
+
+                case 1:
+                    rgb.X *= 1 - s * f;
+                    rgb.Z *= 1 - s;
+                    break;
+
+                case 2:
+                    rgb.X *= 1 - s;
+                    rgb.Z *= 1 - s * (1 - f);
+                    break;
+
+                case 3:
+                    rgb.X *= 1 - s;
+                    rgb.Y *= 1 - s * f;
+                    break;
+
+                case 4:
+                    rgb.X *= 1 - s * (1 - f);
+                    rgb.Y *= 1 - s;
+                    break;
+
+                case 5:
+                case 6:
+                    rgb.Y *= 1 - s;
+                    rgb.Z *= 1 - s * f;
+                    break;
+
+                default:
+                    break;
+            }
+
+            return rgb;
+        }
     }
 }

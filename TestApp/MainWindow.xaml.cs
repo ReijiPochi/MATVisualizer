@@ -48,8 +48,10 @@ namespace TestApp
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             UDC udc = UDCLoader.Load(@"AVS1.inp");
-            Object3D udcObj = udc.ToObject3D();
-            Render.AddObject(udcObj);
+            //Object3D udcObj = udc.ToSolidObject();
+            //Render.AddObject(udcObj);
+
+            new UDCObject(udc);
 
             NeuronInputPort u1 = new NeuronInputPort() { Wait = 1.0 };
             NeuronInputPort u2 = new NeuronInputPort() { Wait = 1.0 };

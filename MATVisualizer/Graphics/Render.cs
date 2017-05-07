@@ -66,5 +66,10 @@ namespace MATVisualizer.Graphics
 
             GraphicsCore.Resize((int)ViewPortWidth, (int)ViewPortHeight);
         }
+
+        public static void Callback()
+        {
+
+        }
     }
 }

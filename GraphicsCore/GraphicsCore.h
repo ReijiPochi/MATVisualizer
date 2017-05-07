@@ -12,12 +12,15 @@
 #include <DirectXMath.h>
 #include <DirectXMathMatrix.inl>
 
+typedef void(*RenderCallback)();
+typedef void (*Callback)(void* data);
 
 struct GraphicsCoreDescription
 {
 	HWND handle;
 	int width;
 	int height;
+	RenderCallback* callback;
 };
 
 struct GlobalCBufferData
@@ -25,10 +28,19 @@ struct GlobalCBufferData
 	DirectX::XMMATRIX camera;
 };
 
+struct CallbackData
+{
+	Callback function;
+	void* data;
+};
+
 class GraphicsCore
 {
 public:
 	static bool						Ready;
+	static bool						rendering;
+	static RenderCallback*				callback;
+	static std::vector<CallbackData> queue;
 	static HWND						hWnd;					// ウィンドウハンドル
 	static float					viewWidth;
 	static float					viewHeight;
@@ -48,6 +60,7 @@ public:
 };
 
 void ReleaseIUnknown(IUnknown** target);
+void AddToQueue(Callback callback);
 
 DLL_API int GraphicsCore_Initialize(GraphicsCoreDescription desc);
 DLL_API ID3D11Device* GraphicsCore_GetDevice();
