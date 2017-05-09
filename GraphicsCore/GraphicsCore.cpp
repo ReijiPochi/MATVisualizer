@@ -232,6 +232,7 @@ void InitializeDevice(GraphicsCoreDescription desc)
 	ZeroMemory(&rDesc, sizeof(D3D11_RASTERIZER_DESC));
 	rDesc.FillMode = D3D11_FILL_SOLID;
 	rDesc.DepthClipEnable = true;
+	//rDesc.CullMode = D3D11_CULL_NONE;
 	rDesc.CullMode = D3D11_CULL_BACK;
 	rDesc.AntialiasedLineEnable = true;
 	rDesc.MultisampleEnable = true;

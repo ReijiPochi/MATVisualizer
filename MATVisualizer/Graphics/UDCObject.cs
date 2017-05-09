@@ -28,7 +28,8 @@ namespace MATVisualizer.Graphics
 
             Surface = new SolidObject(description);
 
-            GetSurface(udc);
+            //GetSurface(udc);
+            GetSurface2(udc);
             Surface.DownloadShape();
             Surface.SetBuffer(Surface.Buffer);
             Surface.Unlock();
@@ -42,6 +43,7 @@ namespace MATVisualizer.Graphics
             public int p1;
             public int p2;
             public int p3;
+            public UDCCell cell;
         }
 
         public SolidObject Surface { get; set; }
@@ -185,6 +187,140 @@ namespace MATVisualizer.Graphics
             Surface.Buffer = new BufferResource(ref bufferDesc, buffer.ToArray());
         }
 
+        private void GetSurface2(UDC udc)
+        {
+            Polygon[] polys = new Polygon[udc.CellCount * 4 + 1];
+            int polyIndex = 0;
+
+            foreach (UDCCell cell in udc.Cells)
+            {
+                int[] vertices = new int[4];
+                Array.Copy(cell.Nodes, vertices, 4);
+                Array.Sort(vertices);
+
+                polys[polyIndex].p1 = vertices[0];
+                polys[polyIndex].p2 = vertices[1];
+                polys[polyIndex].p3 = vertices[2];
+                polys[polyIndex].cell = cell;
+                polyIndex++;
+
+                polys[polyIndex].p1 = vertices[0];
+                polys[polyIndex].p2 = vertices[1];
+                polys[polyIndex].p3 = vertices[3];
+                polys[polyIndex].cell = cell;
+                polyIndex++;
+
+                polys[polyIndex].p1 = vertices[0];
+                polys[polyIndex].p2 = vertices[2];
+                polys[polyIndex].p3 = vertices[3];
+                polys[polyIndex].cell = cell;
+                polyIndex++;
+
+                polys[polyIndex].p1 = vertices[1];
+                polys[polyIndex].p2 = vertices[2];
+                polys[polyIndex].p3 = vertices[3];
+                polys[polyIndex].cell = cell;
+                polyIndex++;
+            }
+
+            polys[udc.CellCount * 4].p1 = int.MaxValue;
+
+            Array.Sort(polys, (x, y) =>
+            {
+                if (x.p1 > y.p1) return 1;
+                else if (x.p1 < y.p1) return -1;
+                else
+                {
+                    if (x.p2 > y.p2) return 1;
+                    else if (x.p2 < y.p2) return -1;
+                    else
+                    {
+                        if (x.p3 > y.p3) return 1;
+                        else if (x.p3 < y.p3) return -1;
+                        else return 0;
+                    }
+                }
+            });
+
+            List<VertexData_ShapeAndIndex> vertex = new List<VertexData_ShapeAndIndex>();
+            List<Vector3> buffer = new List<Vector3>();
+
+            UDCNode[] nodeArray = udc.Nodes;
+            uint bufferIndex = 0;
+
+            for (int index = 0; index < polys.Length - 1; index++)
+            {
+                Polygon t1 = polys[index];
+                Polygon t2 = polys[index + 1];
+
+                if (t1.p2 != t2.p2 || t1.p1 != t2.p1 || t1.p3 != t2.p3)
+                {
+                    int[] nodes = t1.cell.Nodes;
+
+                    bool node1 = Included(nodes[0], t1);
+                    bool node2 = Included(nodes[1], t1);
+                    bool node3 = Included(nodes[2], t1);
+                    bool node4 = Included(nodes[3], t1);
+
+                    if(node1)
+                    {
+                        if(node2)
+                        {
+                            if(node3)
+                            {
+                                vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[0] - 1].Coord, GC_DataIndex1 = bufferIndex });
+                                vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[1] - 1].Coord, GC_DataIndex1 = bufferIndex });
+                                vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[2] - 1].Coord, GC_DataIndex1 = bufferIndex });
+                            }
+                            else
+                            {
+                                vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[0] - 1].Coord, GC_DataIndex1 = bufferIndex });
+                                vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[3] - 1].Coord, GC_DataIndex1 = bufferIndex });
+                                vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[1] - 1].Coord, GC_DataIndex1 = bufferIndex });
+                            }
+                        }
+                        else
+                        {
+                            vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[0] - 1].Coord, GC_DataIndex1 = bufferIndex });
+                            vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[2] - 1].Coord, GC_DataIndex1 = bufferIndex });
+                            vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[3] - 1].Coord, GC_DataIndex1 = bufferIndex });
+                        }
+                    }
+                    else
+                    {
+                        vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[3] - 1].Coord, GC_DataIndex1 = bufferIndex });
+                        vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[2] - 1].Coord, GC_DataIndex1 = bufferIndex });
+                        vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[1] - 1].Coord, GC_DataIndex1 = bufferIndex });
+                    }
+
+                    buffer.Add(ColorConverter.HSVtoRGB(0.7f - t1.cell.Data[3] * 20, 1f, 1f));
+                    bufferIndex++;
+                }
+                else
+                {
+                    index++;
+                }
+            }
+
+            Surface.Vertices = new VerticesData<VertexData_ShapeAndIndex>(vertex.ToArray());
+
+            uint[] indices = new uint[vertex.Count];
+            for (uint i = 0; i < indices.Length; i++)
+            {
+                indices[i] = i;
+            }
+
+            Surface.Indices = new IndicesData<uint>(indices);
+
+            BufferDescription bufferDesc = new BufferDescription()
+            {
+                elementSize = 12,
+                numElements = buffer.Count
+            };
+
+            Surface.Buffer = new BufferResource(ref bufferDesc, buffer.ToArray());
+        }
+
         private bool Included(Polygon t, UDCCell cell)
         {
             bool p1Inside = false, p2Inside = false, p3Inside = false;
@@ -199,6 +335,14 @@ namespace MATVisualizer.Graphics
                     return true;
             }
 
+            return false;
+        }
+
+        private bool Included(int p, Polygon t)
+        {
+            if (t.p1 == p) return true;
+            if (t.p2 == p) return true;
+            if (t.p3 == p) return true;
             return false;
         }
     }

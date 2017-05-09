@@ -53,83 +53,83 @@ namespace TestApp
 
             new UDCObject(udc);
 
-            NeuronInputPort u1 = new NeuronInputPort() { Wait = 1.0 };
-            NeuronInputPort u2 = new NeuronInputPort() { Wait = 1.0 };
+            //NeuronInputPort u1 = new NeuronInputPort() { Wait = 1.0 };
+            //NeuronInputPort u2 = new NeuronInputPort() { Wait = 1.0 };
 
-            Neuron Nu1 = new Neuron(u1);
-            Neuron Nu2 = new Neuron(u2);
-            Neuron Const1 = new Neuron() { IsConstant = true, OutputValue = 1.0 };
+            //Neuron Nu1 = new Neuron(u1);
+            //Neuron Nu2 = new Neuron(u2);
+            //Neuron Const1 = new Neuron() { IsConstant = true, OutputValue = 1.0 };
 
-            Neuron X1 = new Neuron();
-            Neuron X2 = new Neuron();
-            Neuron Const2 = new Neuron() { IsConstant = true, OutputValue = 1.0 };
+            //Neuron X1 = new Neuron();
+            //Neuron X2 = new Neuron();
+            //Neuron Const2 = new Neuron() { IsConstant = true, OutputValue = 1.0 };
 
-            Neuron Y1 = new Neuron();
+            //Neuron Y1 = new Neuron();
 
-            Nu1.Connect(X1, X2);
-            Nu2.Connect(X1, X2);
-            Const1.Connect(X1, X2);
+            //Nu1.Connect(X1, X2);
+            //Nu2.Connect(X1, X2);
+            //Const1.Connect(X1, X2);
 
-            X1.Connect(Y1);
-            X2.Connect(Y1);
-            Const2.Connect(Y1);
+            //X1.Connect(Y1);
+            //X2.Connect(Y1);
+            //Const2.Connect(Y1);
 
-            double[] error = new double[4];
-            int errorCount = 1;
+            //double[] error = new double[4];
+            //int errorCount = 1;
 
-            for(int study = 0; study < 100000; study++)
-            {
-                double input1 = Math.Floor((study % 4) / 2.0);
-                double input2 = study % 2;
-                double t = Math.Abs(input1 - input2);
+            //for(int study = 0; study < 100000; study++)
+            //{
+            //    double input1 = Math.Floor((study % 4) / 2.0);
+            //    double input2 = study % 2;
+            //    double t = Math.Abs(input1 - input2);
 
-                NeuronInputPort.ClearAllValue();
+            //    NeuronInputPort.ClearAllValue();
 
-                u1.Input(input1);
-                u2.Input(input2);
+            //    u1.Input(input1);
+            //    u2.Input(input2);
 
-                X1.DoWork();
-                X2.DoWork();
+            //    X1.DoWork();
+            //    X2.DoWork();
 
-                Y1.DoWork();
+            //    Y1.DoWork();
 
-                error[0] = Y1.OutputValue - t;
+            //    error[0] = Y1.OutputValue - t;
 
-                double E = 0;
+            //    double E = 0;
 
-                foreach(double ex in error)
-                {
-                    E += ex;
-                }
+            //    foreach(double ex in error)
+            //    {
+            //        E += ex;
+            //    }
 
-                E /= error.Length;
+            //    E /= error.Length;
 
-                if (errorCount == 4)
-                {
-                    foreach (double ex in error)
-                    {
-                        E = 0;
-                    }
-                    errorCount = 1;
-                }
+            //    if (errorCount == 4)
+            //    {
+            //        foreach (double ex in error)
+            //        {
+            //            E = 0;
+            //        }
+            //        errorCount = 1;
+            //    }
 
-                E = Y1.OutputValue - t;
-
-
-                Y1.BP_v(E);
-                Y1.Threshold = Neuron.GetWait(Const2, Y1);
-
-                X1.BP_w(E, Y1);
-                X1.Threshold = Neuron.GetWait(Const1, X1);
-                X2.BP_w(E, Y1);
-                X2.Threshold = Neuron.GetWait(Const1, X2);
+            //    E = Y1.OutputValue - t;
 
 
-                for(int i = 3; i > 0; i--)
-                {
-                    error[i] = error[i - 1];
-                }
-            }
+            //    Y1.BP_v(E);
+            //    Y1.Threshold = Neuron.GetWait(Const2, Y1);
+
+            //    X1.BP_w(E, Y1);
+            //    X1.Threshold = Neuron.GetWait(Const1, X1);
+            //    X2.BP_w(E, Y1);
+            //    X2.Threshold = Neuron.GetWait(Const1, X2);
+
+
+            //    for(int i = 3; i > 0; i--)
+            //    {
+            //        error[i] = error[i - 1];
+            //    }
+            //}
         }
 
     }
