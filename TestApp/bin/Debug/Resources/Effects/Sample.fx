@@ -22,6 +22,7 @@ struct GSPSInput
 {
 	float4 Position : SV_Position;
 	float4 data : GC_DataValue;
+	float3 OriginalPosition : GC_Position;
 };
 
 GSPSInput VSFunc(VSInput input)
@@ -30,6 +31,7 @@ GSPSInput VSFunc(VSInput input)
 
 	output.Position = mul(camera, float4(input.Position, 1.0f));
 	output.data = float4(dataBuffer.Load(input.dataIndex), 1.0f);
+	output.OriginalPosition = input.Position;
 
 	return output;
 }
@@ -46,5 +48,12 @@ void GSFunc(triangle GSPSInput input[ 3 ], inout TriangleStream<GSPSInput> strea
 
 float4 PSFunc(GSPSInput input) : SV_Target0
 {
+	//float3 direction = float3(0.05, 0.05, 0.05) - input.OriginalPosition;
+
+	//if (dot(direction, float3(0.5, 0.5, 0.5)) < 0)
+	//{
+	//	input.data = float4(0.0, 0.0, 0.0, 0.0);
+	//}
+
 	return input.data;
 }

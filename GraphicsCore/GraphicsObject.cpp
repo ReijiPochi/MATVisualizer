@@ -88,6 +88,22 @@ HRESULT GraphicsObject::SetShape(int slot, void* vertex, UINT numVertex, void* i
 	return hr;
 }
 
+void GraphicsObject::UpdateShape(int slot, void* vertex, UINT numVertex, void* index, UINT numIndex)
+{
+	if (shapes[slot] == nullptr)
+		return;
+
+	if (numVertex != 0 && shapes[slot]->vertexBuffer != nullptr)
+	{
+		GraphicsCore::pDeviceContext->UpdateSubresource(shapes[slot]->vertexBuffer, 0, NULL, vertex, numVertex, 0);
+	}
+
+	if (numIndex != 0 && shapes[slot]->indexBuffer != nullptr)
+	{
+		GraphicsCore::pDeviceContext->UpdateSubresource(shapes[slot]->indexBuffer, 0, NULL, index, numIndex, 0);
+	}
+}
+
 HRESULT GraphicsObject::SetVertices(VertexAndIndex* shape, void* data, UINT length)
 {
 	shape->numVertices = length;
@@ -196,6 +212,11 @@ DLL_API GraphicsObject* GraphicsObject_Create(GraphicsObjectDescription desc)
 DLL_API HRESULT GraphicsObject_SetShape(GraphicsObject* object, int slot, void* vertex, UINT numVertex, void* index, UINT numIndex)
 {
 	return object->SetShape(slot, vertex, numVertex, index, numIndex);
+}
+
+DLL_API void GraphicsObject_UpdateShape(GraphicsObject* object, int slot, void* vertex, UINT numVertex, void* index, UINT numIndex)
+{
+	object->UpdateShape(slot, vertex, numVertex, index, numIndex);
 }
 
 DLL_API void GraphicsObject_SetTexture(GraphicsObject* object, int slot, Texture* texture)

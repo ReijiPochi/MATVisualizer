@@ -32,6 +32,7 @@ namespace MATVisualizer.Graphics
             GetSurface2(udc);
             Surface.DownloadShape();
             Surface.SetBuffer(Surface.Buffer);
+            Surface.UpdateIndex();
             Surface.Unlock();
             Render.AddObject(Surface);
         }
@@ -47,6 +48,11 @@ namespace MATVisualizer.Graphics
         }
 
         public SolidObject Surface { get; set; }
+
+        public void Slice(Vector3 position, Vector3 normal)
+        {
+
+        }
 
         private void GetSurface(UDC udc)
         {

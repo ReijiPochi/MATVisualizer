@@ -36,5 +36,10 @@ namespace MATVisualizer.Graphics
                 Core.GraphicsObject.SetShape(objectHandle, 0, Vertices.Pointer, Vertices.NumVertices, IntPtr.Zero, 0);
             }
         }
+
+        public void UpdateIndex()
+        {
+            Core.GraphicsObject.UpdateShape(objectHandle, 0, IntPtr.Zero, 0, Indices.Pointer, Indices.NumIndices);
+        }
     }
 }

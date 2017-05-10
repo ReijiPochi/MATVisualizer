@@ -58,6 +58,7 @@ private:
 public:
 	static GraphicsObject* Create(GraphicsObjectDescription desc);
 	HRESULT SetShape(int slot, void* vertex, UINT numVertex, void* index, UINT numIndex);
+	void UpdateShape(int slot, void* vertex, UINT numVertex, void* index, UINT numIndex);
 	void DownloadBuffers();
 	void Release();
 	bool						isLocking = true;
@@ -71,6 +72,7 @@ public:
 
 DLL_API GraphicsObject* GraphicsObject_Create(GraphicsObjectDescription desc);
 DLL_API HRESULT GraphicsObject_SetShape(GraphicsObject* object, int slot, void* vertex, UINT numVertex, void* index, UINT numIndex);
+DLL_API void GraphicsObject_UpdateShape(GraphicsObject* object, int slot, void* vertex, UINT numVertex, void* index, UINT numIndex);
 DLL_API void GraphicsObject_SetTexture(GraphicsObject* object, int slot, Texture* texture);
 DLL_API void GraphicsObject_SetBuffer(GraphicsObject* object, int slot, Buffer* buffer);
 DLL_API void GraphicsObject_SetLock(GraphicsObject* object, bool lock);

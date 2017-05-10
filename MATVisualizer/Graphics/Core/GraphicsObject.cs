@@ -22,6 +22,9 @@ namespace MATVisualizer.Graphics.Core
         [DllImport("GraphicsCore.dll", EntryPoint = "GraphicsObject_SetShape", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern HRESULT SetShape(IntPtr obj, int slot, IntPtr vertex, uint numVertex, IntPtr index, uint numIndex);
 
+        [DllImport("GraphicsCore.dll", EntryPoint = "GraphicsObject_UpdateShape", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void UpdateShape(IntPtr obj, int slot, IntPtr vertex, uint numVertex, IntPtr index, uint numIndex);
+
         [DllImport("GraphicsCore.dll", EntryPoint = "GraphicsObject_SetTexture", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern void SetTexture(IntPtr obj, int slot, IntPtr texture);
 

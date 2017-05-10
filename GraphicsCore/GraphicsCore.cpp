@@ -245,6 +245,28 @@ void InitializeDevice(GraphicsCoreDescription desc)
 	rasterizerState->Release();
 	rasterizerState = nullptr;
 
+	D3D11_BLEND_DESC bDesc;
+	ZeroMemory(&bDesc, sizeof(D3D11_BLEND_DESC));
+	bDesc.AlphaToCoverageEnable = FALSE;
+	bDesc.IndependentBlendEnable = FALSE;
+	bDesc.RenderTarget[0].BlendEnable = TRUE;
+	bDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	bDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	bDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	bDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	bDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_DEST_ALPHA;
+	bDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	bDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	ID3D11BlendState *bState;
+	{
+		HRESULT result = GraphicsCore::pDevice->CreateBlendState(&bDesc, &bState);
+		float blendFactor[4] = { D3D11_BLEND_ZERO, D3D11_BLEND_ZERO, D3D11_BLEND_ZERO, D3D11_BLEND_ZERO };
+		GraphicsCore::pDeviceContext->OMSetBlendState(bState, blendFactor, 0xffffffff);
+	}
+	bState->Release();
+	bState = nullptr;
+
 	// ビューポートの設定
 	D3D11_VIEWPORT vp;
 	vp.Width = (FLOAT)desc.width;
