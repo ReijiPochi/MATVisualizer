@@ -28,6 +28,13 @@ struct Vector3
 	float Z;
 };
 
+enum VertexType
+{
+	VertexType_Null = 0,
+	VertexType_Shape = 1,
+	VertexType_ShapeAndValue = 2,
+};
+
 struct VertexData_Shape
 {
 	Vector3 SV_Position;

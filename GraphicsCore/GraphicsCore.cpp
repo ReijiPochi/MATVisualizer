@@ -2,6 +2,7 @@
 #include "GraphicsObject.h"
 #include "ConstantBuffer.h"
 #include "ReleasableObject.h"
+#include "Shape.h"
 
 #include <windows.h>
 #include <cstdio>
@@ -93,9 +94,12 @@ void GraphicsCore::Render()
 
 		for (int i = 0; i < GRAPHICSOBJECT_SHAPE_MAX; i++)
 		{
-			VertexAndIndex* shape = (*itr)->shapes[i];
+			Shape* shape = (*itr)->shapes[i];
 
 			if (shape == nullptr)
+				continue;
+
+			if (shape->numVertices < 3)
 				continue;
 
 			// 入力アセンブラに頂点バッファを設定

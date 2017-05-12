@@ -69,6 +69,8 @@
     <Compile Include="Graphics\CameraPerspective.cs" />
     <Compile Include="Graphics\Core\GraphicsCoreDescription.cs" />
     <Compile Include="Graphics\Core\RenderCallback.cs" />
+    <Compile Include="Graphics\Core\VertexTypeExt.cs" />
+    <Compile Include="Graphics\Core\_Shape.cs" />
     <Compile Include="Graphics\Core\_Camera.cs" />
     <Compile Include="Graphics\Core\Shader.cs" />
     <Compile Include="Graphics\Core\_Buffer.cs" />
@@ -84,6 +86,7 @@
     <Compile Include="Graphics\IndicesDataBase.cs" />
     <Compile Include="Graphics\Object3D.cs" />
     <Compile Include="Graphics\Render.cs" />
+    <Compile Include="Graphics\Shape.cs" />
     <Compile Include="Graphics\SolidObject.cs" />
     <Compile Include="Graphics\UDCObject.cs" />
     <Compile Include="Graphics\VerticesData.cs" />

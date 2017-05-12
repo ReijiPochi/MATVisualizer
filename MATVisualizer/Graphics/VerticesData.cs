@@ -15,6 +15,7 @@ namespace MATVisualizer.Graphics
             if (_data != null)
             {
                 data = _data;
+                Type = VertexType.Null.FromVertexDataT(typeof(T));
                 GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
                 Pointer = handle.AddrOfPinnedObject();
                 NumVertices = (uint)data.LongLength;
@@ -26,7 +27,7 @@ namespace MATVisualizer.Graphics
 
         public override void Dispose()
         {
-            if (handle != null)
+            if (handle != null && handle.IsAllocated)
                 handle.Free();
         }
     }

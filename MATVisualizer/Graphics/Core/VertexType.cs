@@ -8,6 +8,7 @@ namespace MATVisualizer.Graphics.Core
 {
     public enum VertexType : uint
     {
+        Null = 0,
         Shape = 1,
         ShapeAndValue = 2,
     }

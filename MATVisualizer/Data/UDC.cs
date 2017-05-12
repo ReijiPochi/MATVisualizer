@@ -146,8 +146,7 @@ namespace MATVisualizer.Data
 
             SolidObject obj1 = new SolidObject(desc);
 
-            obj1.Vertices = new VerticesData<VertexData_ShapeAndIndex>(vertices);
-            obj1.DownloadShape();
+            obj1.Shapes[0] = new Shape(new VerticesData<VertexData_ShapeAndIndex>(vertices), null);
 
             BufferDescription bufferDesc = new BufferDescription()
             {

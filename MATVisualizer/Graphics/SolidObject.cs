@@ -19,27 +19,19 @@ namespace MATVisualizer.Graphics
             Unlock();
         }
 
-        public VerticesData Vertices { get; set; }
-
-        public IndicesData Indices { get; set; }
+        public Shape[] Shapes { get; set; } = new Shape[8];
 
         public BufferResource Buffer { get; set; }
 
-        public override void DownloadShape()
+        public void SetShapes()
         {
-            if(Vertices != null && Indices != null)
+            for(int i = 0; i < 8; i++)
             {
-                Core.GraphicsObject.SetShape(objectHandle, 0, Vertices.Pointer, Vertices.NumVertices, Indices.Pointer, Indices.NumIndices);
+                if(Shapes[i] != null)
+                {
+                    SetShape(Shapes[i], i);
+                }
             }
-            else if(Vertices != null)
-            {
-                Core.GraphicsObject.SetShape(objectHandle, 0, Vertices.Pointer, Vertices.NumVertices, IntPtr.Zero, 0);
-            }
-        }
-
-        public void UpdateIndex()
-        {
-            Core.GraphicsObject.UpdateShape(objectHandle, 0, IntPtr.Zero, 0, Indices.Pointer, Indices.NumIndices);
         }
     }
 }

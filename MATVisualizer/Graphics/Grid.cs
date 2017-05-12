@@ -24,9 +24,8 @@ namespace MATVisualizer.Graphics
 
             Create(desc);
 
-            Vertices = GenVertices(num, pitch);
-
-            DownloadShape();
+            Shapes[0] = new Shape(GenVertices(num, pitch));
+            SetShapes();
 
             BufferDescription bDesc = new BufferDescription()
             {

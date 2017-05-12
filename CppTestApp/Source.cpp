@@ -6,6 +6,7 @@
 #include <GraphicsObject.h>
 #include <Camera.h>
 #include <DataTypesDefinition.h>
+#include <Shape.h>
 #include <Shader.h>
 
 using namespace std;
@@ -60,7 +61,9 @@ void main()
 
 	UINT indices[]{ 0,1,2,1,3,2 };
 
-	GraphicsObject_SetShape(obj1, 0, vertices, 4, indices, 6);
+	//GraphicsObject_SetShape(obj1, 0, vertices, 4, indices, 6);
+	Shape* s = Shape_Create(VertexType_ShapeAndValue);
+	Shape_Set(s, VertexType_ShapeAndValue, vertices, 4, indices, 6);
 
 	Vector3 data[]
 	{

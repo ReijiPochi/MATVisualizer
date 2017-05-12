@@ -30,7 +30,10 @@ namespace MATVisualizer.Graphics
                 GraphicsObject.SetLock(objectHandle, false);
         }
 
-        public abstract void DownloadShape();
+        public void SetShape(Shape shape, int slot)
+        {
+            GraphicsObject.SetShape(objectHandle, slot, shape.shapeHandle);
+        }
 
         public void SetBuffer(BufferResource buffer, int slot = 0)
         {

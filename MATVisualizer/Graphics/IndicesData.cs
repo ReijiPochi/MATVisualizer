@@ -25,7 +25,7 @@ namespace MATVisualizer.Graphics
 
         public override void Dispose()
         {
-            if (handle != null)
+            if (handle != null && handle.IsAllocated)
                 handle.Free();
         }
     }

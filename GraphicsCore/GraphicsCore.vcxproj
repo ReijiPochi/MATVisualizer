@@ -151,6 +151,7 @@
     </ClCompile>
     <ClCompile Include="ReleasableObject.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="Shape.cpp" />
     <ClCompile Include="Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -169,6 +170,7 @@
     </ClInclude>
     <ClInclude Include="ReleasableObject.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="Shape.h" />
     <ClInclude Include="Texture.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
