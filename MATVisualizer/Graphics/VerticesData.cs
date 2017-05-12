@@ -21,7 +21,7 @@ namespace MATVisualizer.Graphics
             }
         }
 
-        private T[] data;
+        public T[] data;
         private GCHandle handle;
 
         public override void Dispose()

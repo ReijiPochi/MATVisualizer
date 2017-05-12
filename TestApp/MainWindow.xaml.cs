@@ -51,7 +51,8 @@ namespace TestApp
             //Object3D udcObj = udc.ToSolidObject();
             //Render.AddObject(udcObj);
 
-            new UDCObject(udc);
+            UDCObject udcObj = new UDCObject(udc);
+            udcObj.Slice(new Vector3(0.05f, 0.05f, 0.05f), new Vector3(1f, 1f, 1f));
 
             //NeuronInputPort u1 = new NeuronInputPort() { Wait = 1.0 };
             //NeuronInputPort u2 = new NeuronInputPort() { Wait = 1.0 };

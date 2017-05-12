@@ -42,7 +42,9 @@ namespace MATVisualizer
                 ResizeMode = ResizeMode.NoResize,
                 ShowInTaskbar = false,
                 Topmost = true,
-                WindowStyle = WindowStyle.None
+                WindowStyle = WindowStyle.None,
+                Width = 100.0,
+                Height = 100.0
             };
 
             viewWindow.MouseWheel += ViewWindow_MouseWheel;

@@ -48,10 +48,74 @@ namespace MATVisualizer.Graphics
         }
 
         public SolidObject Surface { get; set; }
+        private uint[] originalIndices;
 
         public void Slice(Vector3 position, Vector3 normal)
         {
+            IndicesData<uint> indices = (IndicesData<uint>)Surface.Indices;
+            int indicesIndex = 0;
+            VerticesData<VertexData_ShapeAndIndex> vertices = (VerticesData<VertexData_ShapeAndIndex>)Surface.Vertices;
 
+            for (int i = 0; i < Surface.Indices.NumIndices; i += 3)
+            {
+                float v1dot = Vector3.Dot(Vector3.Subtract(position, vertices.data[originalIndices[i]].SV_Position), normal);
+                float v2dot = Vector3.Dot(Vector3.Subtract(position, vertices.data[originalIndices[i + 1]].SV_Position), normal);
+                float v3dot = Vector3.Dot(Vector3.Subtract(position, vertices.data[originalIndices[i + 2]].SV_Position), normal);
+
+                bool v1 = v1dot > 0;
+                bool v2 = v2dot > 0;
+                bool v3 = v3dot > 0;
+
+                if (v1 && v2 && v3)
+                {
+                    indices.data[indicesIndex] = originalIndices[i];
+                    indicesIndex++;
+                    indices.data[indicesIndex] = originalIndices[i + 1];
+                    indicesIndex++;
+                    indices.data[indicesIndex] = originalIndices[i + 2];
+                    indicesIndex++;
+                }
+                else if (v1 || v2 || v3)
+                {
+                    Vector3 newV12, newV13, newV23;
+                    int newV12gen = 0, newV13gen = 0, newV23gen = 0;
+
+                    v1dot = v1 ? v1dot : -v1dot;
+                    v2dot = v2 ? v2dot : -v2dot;
+                    v3dot = v3 ? v3dot : -v3dot;
+
+                    if ((v1 && !v2) || (!v1 && v2))
+                    {
+                        newV12gen = 1;
+                        newV12 = (vertices.data[originalIndices[i]].SV_Position * v2dot + vertices.data[originalIndices[i + 1]].SV_Position * v1dot) / (v1dot + v2dot);
+                    }
+
+                    if((v1 && !v3) || (!v1 && v3))
+                    {
+                        newV13gen = 1;
+                        newV13 = (vertices.data[originalIndices[i]].SV_Position * v3dot + vertices.data[originalIndices[i + 2]].SV_Position * v1dot) / (v1dot + v3dot);
+                    }
+
+                    if ((v2 && !v3) || (!v2 && v3))
+                    {
+                        newV23gen = 1;
+                        newV23 = (vertices.data[originalIndices[i + 1]].SV_Position * v3dot + vertices.data[originalIndices[i + 2]].SV_Position * v2dot) / (v2dot + v3dot);
+                    }
+
+                    if(newV12gen + newV13gen + newV23gen == 2)
+                    {
+
+                    }
+                    else
+                    {
+
+                    }
+                }
+            }
+
+            Surface.Indices.NumIndices = (uint)indicesIndex;
+
+            Surface.UpdateIndex();
         }
 
         private void GetSurface(UDC udc)
@@ -315,6 +379,9 @@ namespace MATVisualizer.Graphics
             {
                 indices[i] = i;
             }
+
+            originalIndices = new uint[indices.Length];
+            Array.Copy(indices, originalIndices, indices.Length);
 
             Surface.Indices = new IndicesData<uint>(indices);
 

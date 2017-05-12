@@ -95,11 +95,13 @@ void GraphicsObject::UpdateShape(int slot, void* vertex, UINT numVertex, void* i
 
 	if (numVertex != 0 && shapes[slot]->vertexBuffer != nullptr)
 	{
+		shapes[slot]->numVertices = numVertex;
 		GraphicsCore::pDeviceContext->UpdateSubresource(shapes[slot]->vertexBuffer, 0, NULL, vertex, numVertex, 0);
 	}
 
 	if (numIndex != 0 && shapes[slot]->indexBuffer != nullptr)
 	{
+		shapes[slot]->numIndices = numIndex;
 		GraphicsCore::pDeviceContext->UpdateSubresource(shapes[slot]->indexBuffer, 0, NULL, index, numIndex, 0);
 	}
 }

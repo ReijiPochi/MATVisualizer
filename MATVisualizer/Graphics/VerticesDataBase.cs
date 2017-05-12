@@ -9,7 +9,7 @@ namespace MATVisualizer.Graphics
     public abstract class VerticesData : IDisposable
     {
         public IntPtr Pointer { get; protected set; }
-        public uint NumVertices { get; protected set; }
+        public uint NumVertices { get; set; }
         public abstract void Dispose();
     }
 }
