@@ -1,6 +1,15 @@
 #include "Shape.h"
 #include "GraphicsCore.h"
 
+struct SetUpdateCallbackArgs
+{
+	Shape* shape;
+	void* vertex;
+	UINT numVertex;
+	void* index;
+	UINT numIndex;
+};
+
 Shape::Shape(VertexType type)
 {
 	vertexType = type;
@@ -10,31 +19,12 @@ Shape::Shape(VertexType type)
 	numIndices = 0;
 }
 
-HRESULT Shape::Set(VertexType vertexType, void* vertex, UINT numVertex, void* index, UINT numIndex)
+HRESULT Shape::Set(void* vertex, UINT numVertex, void* index, UINT numIndex)
 {
-	HRESULT hr = SetVertices(vertex, numVertex);
+	SetVertices(vertex, numVertex);
+	SetIndices(index, numIndex);
 
-	if (FAILED(hr))
-	{
-		return hr;
-	}
-
-	this->vertexType = vertexType;
-
-
-	if (numIndex == 0)
-	{
-		return hr;
-	}
-
-	hr = SetIndices(index, numIndex);
-
-	if (FAILED(hr))
-	{
-		return hr;
-	}
-
-	return hr;
+	return S_OK;
 }
 
 void Shape::Update(void* vertex, UINT numVertex, void* index, UINT numIndex)
@@ -55,6 +45,9 @@ void Shape::Update(void* vertex, UINT numVertex, void* index, UINT numIndex)
 HRESULT Shape::SetVertices(void* data, UINT length)
 {
 	numVertices = length;
+
+	if (length == 0)
+		return S_OK;
 
 	// 頂点バッファの設定
 	D3D11_BUFFER_DESC bd;
@@ -97,6 +90,9 @@ HRESULT Shape::SetIndices(void* data, UINT length)
 {
 	numIndices = length;
 
+	if (length == 0)
+		return S_OK;
+
 	D3D11_BUFFER_DESC bd;
 	ZeroMemory(&bd, sizeof(bd));
 	bd.Usage = D3D11_USAGE_DEFAULT;
@@ -126,17 +122,55 @@ void Shape::Release()
 	ReleaseIUnknown((IUnknown**)indexBuffer);
 }
 
+void SetCallback(void* data)
+{
+	SetUpdateCallbackArgs args = *(SetUpdateCallbackArgs*)data;
+
+	args.shape->Set(args.vertex, args.numVertex, args.index, args.numIndex);
+}
+
+void UpdateCallback(void* data)
+{
+	SetUpdateCallbackArgs args = *(SetUpdateCallbackArgs*)data;
+
+	args.shape->Update(args.vertex, args.numVertex, args.index, args.numIndex);
+}
+
 DLL_API Shape* Shape_Create(VertexType type)
 {
 	return new Shape(type);
 }
 
-DLL_API HRESULT Shape_Set(Shape* shape, VertexType vertexType, void* vertex, UINT numVertex, void* index, UINT numIndex)
+DLL_API HRESULT Shape_Set(Shape* shape, void* vertex, UINT numVertex, void* index, UINT numIndex)
 {
-	return shape->Set(vertexType, vertex, numVertex, index, numIndex);
+	SetUpdateCallbackArgs* args = new SetUpdateCallbackArgs;
+	args->shape = shape;
+	args->vertex = vertex;
+	args->numVertex = numVertex;
+	args->index = index;
+	args->numIndex = numIndex;
+
+	CallbackData* callback = new CallbackData;
+	callback->function = SetCallback;
+	callback->data = args;
+
+	AddToQueue(*callback);
+
+	return S_OK;
 }
 
 DLL_API void Shape_Update(Shape* shape, void* vertex, UINT numVertex, void* index, UINT numIndex)
 {
-	shape->Update(vertex, numVertex, index, numIndex);
+	SetUpdateCallbackArgs* args = new SetUpdateCallbackArgs;
+	args->shape = shape;
+	args->vertex = vertex;
+	args->numVertex = numVertex;
+	args->index = index;
+	args->numIndex = numIndex;
+
+	CallbackData* callback = new CallbackData;
+	callback->function = UpdateCallback;
+	callback->data = args;
+
+	AddToQueue(*callback);
 }

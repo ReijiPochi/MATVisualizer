@@ -14,7 +14,7 @@ namespace MATVisualizer.Graphics
             if (_data != null)
             {
                 data = _data;
-                GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+                handle = GCHandle.Alloc(data, GCHandleType.Pinned);
                 Pointer = handle.AddrOfPinnedObject();
                 NumIndices = (uint)data.LongLength;
             }
@@ -27,6 +27,8 @@ namespace MATVisualizer.Graphics
         {
             if (handle != null && handle.IsAllocated)
                 handle.Free();
+
+            data = null;
         }
     }
 }

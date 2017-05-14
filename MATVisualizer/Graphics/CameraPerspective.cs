@@ -24,7 +24,7 @@ namespace MATVisualizer.Graphics
         public override void UpdateCamera()
         {
             Matrix4x4 matrix = Matrix4x4.CreateLookAt(Eye, Target, Up);
-            matrix *= Matrix4x4.CreatePerspectiveFieldOfView((float)(Math.PI * (FieldOfView / 180.0)), (float)(Render.ViewPortWidth / Render.ViewPortHeight), 0.1f, 1000.0f);
+            matrix *= Matrix4x4.CreatePerspectiveFieldOfView((float)(Math.PI * (FieldOfView / 180.0)), (float)(Render.ViewPortWidth / Render.ViewPortHeight), 0.001f, 1000.0f);
 
             _Camera.Update(cameraHandle, ref matrix);
         }

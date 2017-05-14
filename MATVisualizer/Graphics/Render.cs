@@ -43,7 +43,14 @@ namespace MATVisualizer.Graphics
 
         private static void GraphicsWork(object desc)
         {
-            GraphicsCore.Initialize((GraphicsCoreDescription)desc);
+            try
+            {
+                GraphicsCore.Initialize((GraphicsCoreDescription)desc);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
 
         public static void AddObject(Object3D obj)

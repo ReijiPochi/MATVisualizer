@@ -3,6 +3,9 @@
 
 Buffer* Buffer::Create(BufferDescription* desc, void* data)
 {
+	if (desc->numElements == 0)
+		return nullptr;
+
 	Buffer* result = new Buffer;
 
 	D3D11_BUFFER_DESC bufferDesc;

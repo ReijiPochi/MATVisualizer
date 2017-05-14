@@ -11,7 +11,7 @@ void ReleasableObject::ReleaseAll()
 {
 	for (std::vector<ReleasableObject*>::iterator itr = objectsList->begin(); itr != objectsList->end(); ++itr)
 	{
-		if ((*itr) != NULL)
+		if ((*itr) != nullptr)
 		{
 			(*itr)->Release();
 			delete *itr;

@@ -16,7 +16,7 @@ namespace MATVisualizer.Graphics
             {
                 data = _data;
                 Type = VertexType.Null.FromVertexDataT(typeof(T));
-                GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+                handle = GCHandle.Alloc(data, GCHandleType.Pinned);
                 Pointer = handle.AddrOfPinnedObject();
                 NumVertices = (uint)data.LongLength;
             }
@@ -29,6 +29,8 @@ namespace MATVisualizer.Graphics
         {
             if (handle != null && handle.IsAllocated)
                 handle.Free();
+
+            data = null;
         }
     }
 }

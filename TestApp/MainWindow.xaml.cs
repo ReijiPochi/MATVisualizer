@@ -45,14 +45,17 @@ namespace TestApp
             
         }
 
+        UDCObject udcObj;
+        Vector3 pos = new Vector3(0.05f, 0.05f, 0.05f);
+
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             UDC udc = UDCLoader.Load(@"AVS1.inp");
             //Object3D udcObj = udc.ToSolidObject();
             //Render.AddObject(udcObj);
 
-            UDCObject udcObj = new UDCObject(udc);
-            udcObj.Slice(new Vector3(0.05f, 0.05f, 0.05f), new Vector3(1f, 1f, 1f));
+            udcObj = new UDCObject(udc);
+            udcObj.Slice(pos, new Vector3(1f, 1f, 1f));
 
             //NeuronInputPort u1 = new NeuronInputPort() { Wait = 1.0 };
             //NeuronInputPort u2 = new NeuronInputPort() { Wait = 1.0 };
@@ -133,5 +136,17 @@ namespace TestApp
             //}
         }
 
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (udcObj != null)
+            {
+                if (e.Key == Key.Up)
+                    pos += Vector3.One * 0.001f;
+                else if (e.Key == Key.Down)
+                    pos -= Vector3.One * 0.001f;
+
+                udcObj.Slice(pos, new Vector3(1f, 1f, 1f));
+            }
+        }
     }
 }

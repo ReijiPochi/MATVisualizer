@@ -5,6 +5,7 @@
 #include "Texture.h"
 #include "Camera.h"
 #include "ConstantBuffer.h"
+#include "ReleasableObject.h"
 #include <windows.h>
 #include <cstdio>
 #include <d3d11_4.h>
@@ -28,8 +29,9 @@ struct GlobalCBufferData
 	DirectX::XMMATRIX camera;
 };
 
-struct CallbackData
+class CallbackData : public ReleasableObject
 {
+public:
 	Callback function;
 	void* data;
 };
@@ -60,7 +62,7 @@ public:
 };
 
 void ReleaseIUnknown(IUnknown** target);
-void AddToQueue(Callback callback);
+void AddToQueue(CallbackData callback);
 
 DLL_API int GraphicsCore_Initialize(GraphicsCoreDescription desc);
 DLL_API ID3D11Device* GraphicsCore_GetDevice();

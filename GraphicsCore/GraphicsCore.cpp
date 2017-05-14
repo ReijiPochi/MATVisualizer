@@ -41,6 +41,9 @@ void AddToRenderingListCallback(void* data);
 
 void ReleaseIUnknown(IUnknown** target)
 {
+	if (target == nullptr)
+		return;
+
 	if (*target != nullptr)
 	{
 		(*target)->Release();
@@ -377,7 +380,8 @@ void AddToRenderingListCallback(void* data)
 			queueDoing = true;
 			for (std::vector<CallbackData>::iterator itr = GraphicsCore::queue.begin(); itr != GraphicsCore::queue.end(); ++itr)
 			{
-				(*itr).function((*itr).data);
+				CallbackData callback = *itr;
+				callback.function(callback.data);
 			}
 			GraphicsCore::queue.clear();
 			queueDoing = false;
@@ -417,11 +421,11 @@ void AddToRenderingListCallback(void* data)
 
 	DLL_API void GraphicsCore_AddToRenderingList(GraphicsObject* object)
 	{
-		CallbackData callback;
-		callback.function = AddToRenderingListCallback;
-		callback.data = object;
+		CallbackData* callback = new CallbackData;
+		callback->function = AddToRenderingListCallback;
+		callback->data = object;
 
-		AddToQueue(callback);
+		AddToQueue(*callback);
 	}
 
 	DLL_API void GraphicsCore_SetCamera(Camera* camera)
@@ -431,12 +435,12 @@ void AddToRenderingListCallback(void* data)
 
 	DLL_API HRESULT GraphicsCore_Resize(int width, int height)
 	{
-		CallbackData callback;
+		CallbackData* callback = new CallbackData;
 		Vector2* size = new Vector2(width, height);
-		callback.function = ResizeCallback;
-		callback.data = size;
+		callback->function = ResizeCallback;
+		callback->data = size;
 
-		AddToQueue(callback);
+		AddToQueue(*callback);
 
 		return S_OK;
 	}

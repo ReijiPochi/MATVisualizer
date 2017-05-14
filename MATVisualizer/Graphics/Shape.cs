@@ -32,12 +32,12 @@ namespace MATVisualizer.Graphics
 
         public void Set(VerticesData vertices)
         {
-            _Shape.Set(shapeHandle, vertices.Type, vertices.Pointer, vertices.NumVertices, IntPtr.Zero, 0);
+            _Shape.Set(shapeHandle, vertices.Pointer, vertices.NumVertices, IntPtr.Zero, 0);
         }
 
         public void Set(VerticesData vertices, IndicesData indices)
         {
-            _Shape.Set(shapeHandle, vertices.Type, vertices.Pointer, vertices.NumVertices, indices.Pointer, indices.NumIndices);
+            _Shape.Set(shapeHandle, vertices.Pointer, vertices.NumVertices, indices.Pointer, indices.NumIndices);
         }
 
         public void UpdateAll()
@@ -52,7 +52,7 @@ namespace MATVisualizer.Graphics
 
         public void UpdateVertices()
         {
-            _Shape.Update(shapeHandle, Vertices.Pointer, Vertices.NumVertices, Indices.Pointer, Indices.NumIndices);
+            _Shape.Update(shapeHandle, Vertices.Pointer, Vertices.NumVertices, IntPtr.Zero, 0);
         }
     }
 }

@@ -421,7 +421,7 @@ namespace MATVisualizer.Data
 
                 for (int index = 0; index < pointCount; index++)
                 {
-                    points[index] = int.Parse(splitText[3 + index]);
+                    points[index] = int.Parse(splitText[3 + index]) - 1;
                 }
 
                 data.Cells[elementNumber - 1] = new UDCCell(material, type, points);

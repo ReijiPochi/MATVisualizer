@@ -13,6 +13,8 @@ namespace MATVisualizer.Graphics
     {
         public UDCObject(UDC udc)
         {
+            UdcData = udc;
+
             if(description.vs == IntPtr.Zero)
             {
                 description = new GraphicsObjectDescription()
@@ -27,8 +29,10 @@ namespace MATVisualizer.Graphics
             }
 
             Surface = new SolidObject(description);
-
             Surface.Shapes[1] = new Shape(new VerticesData<VertexData_ShapeAndIndex>(new VertexData_ShapeAndIndex[1]), new IndicesData<uint>(new uint[1]));
+
+            SlicePlane = new SolidObject(description);
+            SlicePlane.Shapes[0] = new Shape(new VerticesData<VertexData_ShapeAndIndex>(new VertexData_ShapeAndIndex[1]), new IndicesData<uint>(new uint[1]));
 
             //GetSurface(udc);
             GetSurface2(udc);
@@ -37,6 +41,9 @@ namespace MATVisualizer.Graphics
             Surface.SetShapes();
             Surface.Unlock();
             Render.AddObject(Surface);
+
+            SlicePlane.SetShapes();
+            Render.AddObject(SlicePlane);
         }
 
         private static GraphicsObjectDescription description;
@@ -49,24 +56,26 @@ namespace MATVisualizer.Graphics
             public UDCCell cell;
         }
 
+        public UDC UdcData { get; set; }
         public SolidObject Surface { get; set; }
+        public SolidObject SlicePlane { get; set; }
         private uint[] originalIndices;
 
         public void Slice(Vector3 position, Vector3 normal)
         {
             IndicesData<uint> indices = (IndicesData<uint>)Surface.Shapes[0].Indices;
             int indicesIndex = 0;
-            VerticesData<VertexData_ShapeAndIndex> vertices = (VerticesData<VertexData_ShapeAndIndex>)Surface.Shapes[0].Vertices;
+            VerticesData<VertexData_ShapeAndIndex> surfaceVertices = (VerticesData<VertexData_ShapeAndIndex>)Surface.Shapes[0].Vertices;
 
-            List<VertexData_ShapeAndIndex> slice = new List<VertexData_ShapeAndIndex>();
+            List<VertexData_ShapeAndIndex> sliceEdge = new List<VertexData_ShapeAndIndex>();
             List<uint> sliceIndex = new List<uint>();
             uint sliceIndexCount = 0;
 
-            for (int i = 0; i < Surface.Shapes[0].Indices.NumIndices; i += 3)
+            for (int i = 0; i < originalIndices.Length; i += 3)
             {
-                float v1dot = Vector3.Dot(Vector3.Subtract(position, vertices.data[originalIndices[i]].SV_Position), normal);
-                float v2dot = Vector3.Dot(Vector3.Subtract(position, vertices.data[originalIndices[i + 1]].SV_Position), normal);
-                float v3dot = Vector3.Dot(Vector3.Subtract(position, vertices.data[originalIndices[i + 2]].SV_Position), normal);
+                float v1dot = Vector3.Dot(Vector3.Subtract(position, surfaceVertices.data[originalIndices[i]].SV_Position), normal);
+                float v2dot = Vector3.Dot(Vector3.Subtract(position, surfaceVertices.data[originalIndices[i + 1]].SV_Position), normal);
+                float v3dot = Vector3.Dot(Vector3.Subtract(position, surfaceVertices.data[originalIndices[i + 2]].SV_Position), normal);
 
                 bool v1 = v1dot > 0;
                 bool v2 = v2dot > 0;
@@ -93,19 +102,19 @@ namespace MATVisualizer.Graphics
                     if ((v1 && !v2) || (!v1 && v2))
                     {
                         newV12gen = true;
-                        newV12 = (vertices.data[originalIndices[i]].SV_Position * v2dot + vertices.data[originalIndices[i + 1]].SV_Position * v1dot) / (v1dot + v2dot);
+                        newV12 = (surfaceVertices.data[originalIndices[i]].SV_Position * v2dot + surfaceVertices.data[originalIndices[i + 1]].SV_Position * v1dot) / (v1dot + v2dot);
                     }
 
                     if((v1 && !v3) || (!v1 && v3))
                     {
                         newV13gen = true;
-                        newV13 = (vertices.data[originalIndices[i]].SV_Position * v3dot + vertices.data[originalIndices[i + 2]].SV_Position * v1dot) / (v1dot + v3dot);
+                        newV13 = (surfaceVertices.data[originalIndices[i]].SV_Position * v3dot + surfaceVertices.data[originalIndices[i + 2]].SV_Position * v1dot) / (v1dot + v3dot);
                     }
 
                     if ((v2 && !v3) || (!v2 && v3))
                     {
                         newV23gen = true;
-                        newV23 = (vertices.data[originalIndices[i + 1]].SV_Position * v3dot + vertices.data[originalIndices[i + 2]].SV_Position * v2dot) / (v2dot + v3dot);
+                        newV23 = (surfaceVertices.data[originalIndices[i + 1]].SV_Position * v3dot + surfaceVertices.data[originalIndices[i + 2]].SV_Position * v2dot) / (v2dot + v3dot);
                     }
 
 
@@ -113,32 +122,32 @@ namespace MATVisualizer.Graphics
 
                     if (v1)
                     {
-                        slice.Add(vertices.data[originalIndices[i]]);
+                        sliceEdge.Add(surfaceVertices.data[originalIndices[i]]);
                         count++;
                     }
                     if (newV12gen)
                     {
-                        slice.Add(new VertexData_ShapeAndIndex() { SV_Position = newV12, GC_DataIndex1 = vertices.data[originalIndices[i]].GC_DataIndex1 });
+                        sliceEdge.Add(new VertexData_ShapeAndIndex() { SV_Position = newV12, GC_DataIndex1 = surfaceVertices.data[originalIndices[i]].GC_DataIndex1 });
                         count++;
                     }
                     if (v2)
                     {
-                        slice.Add(vertices.data[originalIndices[i + 1]]);
+                        sliceEdge.Add(surfaceVertices.data[originalIndices[i + 1]]);
                         count++;
                     }
                     if (newV23gen)
                     {
-                        slice.Add(new VertexData_ShapeAndIndex() { SV_Position = newV23, GC_DataIndex1 = vertices.data[originalIndices[i]].GC_DataIndex1 });
+                        sliceEdge.Add(new VertexData_ShapeAndIndex() { SV_Position = newV23, GC_DataIndex1 = surfaceVertices.data[originalIndices[i]].GC_DataIndex1 });
                         count++;
                     }
                     if (v3)
                     {
-                        slice.Add(vertices.data[originalIndices[i + 2]]);
+                        sliceEdge.Add(surfaceVertices.data[originalIndices[i + 2]]);
                         count++;
                     }
                     if (newV13gen)
                     {
-                        slice.Add(new VertexData_ShapeAndIndex() { SV_Position = newV13, GC_DataIndex1 = vertices.data[originalIndices[i]].GC_DataIndex1 });
+                        sliceEdge.Add(new VertexData_ShapeAndIndex() { SV_Position = newV13, GC_DataIndex1 = surfaceVertices.data[originalIndices[i]].GC_DataIndex1 });
                         count++;
                     }
 
@@ -165,13 +174,195 @@ namespace MATVisualizer.Graphics
                 }
             }
 
+            UDCNode[] nodes = UdcData.Nodes;
+            List<VertexData_ShapeAndIndex> slicePlane = new List<VertexData_ShapeAndIndex>();
+            List<uint> slicePlaneIndex = new List<uint>();
+            uint slicePlaneIndexCount = 0;
+            List<Vector3> buffer2 = new List<Vector3>();
+            uint buffer2Count = 0;
+            Vector3[] tempVertices = new Vector3[4];
+            int tempVerticesIndex = 0;
+
+            foreach (UDCCell cell in UdcData.Cells)
+            {
+                float v1dot = Vector3.Dot(Vector3.Subtract(position, nodes[cell.Nodes[0]].Coord), normal);
+                float v2dot = Vector3.Dot(Vector3.Subtract(position, nodes[cell.Nodes[1]].Coord), normal);
+                float v3dot = Vector3.Dot(Vector3.Subtract(position, nodes[cell.Nodes[2]].Coord), normal);
+                float v4dot = Vector3.Dot(Vector3.Subtract(position, nodes[cell.Nodes[3]].Coord), normal);
+
+                bool v1 = v1dot > 0;
+                bool v2 = v2dot > 0;
+                bool v3 = v3dot > 0;
+                bool v4 = v4dot > 0;
+
+                if(!(v1 && v2 && v3 && v4) && (v1 || v2 || v3 || v4))
+                {
+                    v1dot = v1 ? v1dot : -v1dot;
+                    v2dot = v2 ? v2dot : -v2dot;
+                    v3dot = v3 ? v3dot : -v3dot;
+                    v4dot = v4 ? v4dot : -v4dot;
+
+                    int vertexCount = 0;
+                    tempVerticesIndex = 0;
+
+                    if ((v1 && !v2) || (!v1 && v2))
+                    {
+                        Vector3 v = (nodes[cell.Nodes[0]].Coord * v2dot + nodes[cell.Nodes[1]].Coord * v1dot) / (v1dot + v2dot);
+                        slicePlane.Add(new VertexData_ShapeAndIndex() { SV_Position = v, GC_DataIndex1 = buffer2Count });
+                        vertexCount++;
+
+                        tempVertices[tempVerticesIndex] = v;
+                        tempVerticesIndex++;
+                    }
+                    if((v1 && !v3) || (!v1 && v3))
+                    {
+                        Vector3 v = (nodes[cell.Nodes[0]].Coord * v3dot + nodes[cell.Nodes[2]].Coord * v1dot) / (v1dot + v3dot);
+                        slicePlane.Add(new VertexData_ShapeAndIndex() { SV_Position = v, GC_DataIndex1 = buffer2Count });
+                        vertexCount++;
+
+                        tempVertices[tempVerticesIndex] = v;
+                        tempVerticesIndex++;
+                    }
+                    if((v1 && !v4) || (!v1 && v4))
+                    {
+                        Vector3 v = (nodes[cell.Nodes[0]].Coord * v4dot + nodes[cell.Nodes[3]].Coord * v1dot) / (v1dot + v4dot);
+                        slicePlane.Add(new VertexData_ShapeAndIndex() { SV_Position = v, GC_DataIndex1 = buffer2Count });
+                        vertexCount++;
+
+                        tempVertices[tempVerticesIndex] = v;
+                        tempVerticesIndex++;
+                    }
+                    if((v2 && !v3) || (!v2 && v3))
+                    {
+                        Vector3 v = (nodes[cell.Nodes[1]].Coord * v3dot + nodes[cell.Nodes[2]].Coord * v2dot) / (v2dot + v3dot);
+                        slicePlane.Add(new VertexData_ShapeAndIndex() { SV_Position = v, GC_DataIndex1 = buffer2Count });
+                        vertexCount++;
+
+                        tempVertices[tempVerticesIndex] = v;
+                        tempVerticesIndex++;
+                    }
+                    if((v2 && !v4) || (!v2 && v4))
+                    {
+                        Vector3 v = (nodes[cell.Nodes[1]].Coord * v4dot + nodes[cell.Nodes[3]].Coord * v2dot) / (v2dot + v4dot);
+                        slicePlane.Add(new VertexData_ShapeAndIndex() { SV_Position = v, GC_DataIndex1 = buffer2Count });
+                        vertexCount++;
+
+                        tempVertices[tempVerticesIndex] = v;
+                        tempVerticesIndex++;
+                    }
+                    if ((v3 && !v4) || (!v3 && v4))
+                    {
+                        Vector3 v = (nodes[cell.Nodes[2]].Coord * v4dot + nodes[cell.Nodes[3]].Coord * v3dot) / (v3dot + v4dot);
+                        slicePlane.Add(new VertexData_ShapeAndIndex() { SV_Position = v, GC_DataIndex1 = buffer2Count });
+                        vertexCount++;
+
+                        tempVertices[tempVerticesIndex] = v;
+                        tempVerticesIndex++;
+                    }
+
+                    if (vertexCount == 4)
+                    {
+                        if (Vector3.Dot(Vector3.Cross(tempVertices[1] - tempVertices[0], tempVertices[2] - tempVertices[0]), normal) < 0)
+                        {
+                            slicePlaneIndex.Add(slicePlaneIndexCount);
+                            slicePlaneIndex.Add(slicePlaneIndexCount + 1);
+                            slicePlaneIndex.Add(slicePlaneIndexCount + 2);
+                            slicePlaneIndex.Add(slicePlaneIndexCount + 3);
+                            slicePlaneIndex.Add(slicePlaneIndexCount + 2);
+                            slicePlaneIndex.Add(slicePlaneIndexCount + 1);
+                        }
+                        else
+                        {
+                            slicePlaneIndex.Add(slicePlaneIndexCount + 2);
+                            slicePlaneIndex.Add(slicePlaneIndexCount + 1);
+                            slicePlaneIndex.Add(slicePlaneIndexCount);
+                            slicePlaneIndex.Add(slicePlaneIndexCount + 1);
+                            slicePlaneIndex.Add(slicePlaneIndexCount + 2);
+                            slicePlaneIndex.Add(slicePlaneIndexCount + 3);
+                        }
+
+                        //if (Vector3.Dot(Vector3.Cross(tempVertices[2] - tempVertices[1], tempVertices[3] - tempVertices[1]), normal) < 0)
+                        //{
+                        //    slicePlaneIndex.Add(slicePlaneIndexCount + 1);
+                        //    slicePlaneIndex.Add(slicePlaneIndexCount + 2);
+                        //    slicePlaneIndex.Add(slicePlaneIndexCount + 3);
+                        //}
+                        //else
+                        //{
+                        //    slicePlaneIndex.Add(slicePlaneIndexCount + 3);
+                        //    slicePlaneIndex.Add(slicePlaneIndexCount + 2);
+                        //    slicePlaneIndex.Add(slicePlaneIndexCount + 1);
+                        //}
+
+                        slicePlaneIndexCount += 4;
+                    }
+                    else if (vertexCount == 3)
+                    {
+                        if (Vector3.Dot(Vector3.Cross(tempVertices[1] - tempVertices[0], tempVertices[2] - tempVertices[0]), normal) < 0)
+                        {
+                            slicePlaneIndex.Add(slicePlaneIndexCount);
+                            slicePlaneIndex.Add(slicePlaneIndexCount + 1);
+                            slicePlaneIndex.Add(slicePlaneIndexCount + 2);
+                        }
+                        else
+                        {
+                            slicePlaneIndex.Add(slicePlaneIndexCount + 2);
+                            slicePlaneIndex.Add(slicePlaneIndexCount + 1);
+                            slicePlaneIndex.Add(slicePlaneIndexCount);
+                        }
+
+                        slicePlaneIndexCount += 3;
+                    }
+
+                    buffer2.Add(ColorConverter.HSVtoRGB(0.7f - cell.Data[3] * 20, 1f, 1f));
+                    buffer2Count++;
+                }
+            }
+
+            Surface.Lock();
+            SlicePlane.Lock();
+
             Surface.Shapes[0].Indices.NumIndices = (uint)indicesIndex;
             Surface.Shapes[0].UpdateIndices();
 
             if (Surface.Shapes[1].Vertices != null) Surface.Shapes[1].Vertices.Dispose();
             if (Surface.Shapes[1].Indices != null) Surface.Shapes[1].Indices.Dispose();
 
-            Surface.Shapes[1].Set(new VerticesData<VertexData_ShapeAndIndex>(slice.ToArray()), new IndicesData<uint>(sliceIndex.ToArray()));
+            Surface.Shapes[1].Vertices = new VerticesData<VertexData_ShapeAndIndex>(sliceEdge.ToArray());
+            Surface.Shapes[1].Indices = new IndicesData<uint>(sliceIndex.ToArray());
+
+            Surface.Shapes[1].Set(Surface.Shapes[1].Vertices, Surface.Shapes[1].Indices);
+
+            //if (Surface.Shapes[1] == null)
+            //    Surface.Shapes[1] = new Shape(new VerticesData<VertexData_ShapeAndIndex>(new VertexData_ShapeAndIndex[10000]), new IndicesData<uint>(new uint[10000]));
+
+            //sliceEdge.CopyTo(((VerticesData<VertexData_ShapeAndIndex>)Surface.Shapes[1].Vertices).data);
+            //Surface.Shapes[1].Vertices.NumVertices = (uint)sliceEdge.Count;
+
+            //sliceIndex.CopyTo(((IndicesData<uint>)Surface.Shapes[1].Indices).data);
+            //Surface.Shapes[1].Indices.NumIndices = (uint)sliceIndex.Count;
+
+            //Surface.Shapes[1].UpdateAll();
+
+            if (SlicePlane.Shapes[0].Vertices != null) SlicePlane.Shapes[0].Vertices.Dispose();
+            if (SlicePlane.Shapes[0].Indices != null) SlicePlane.Shapes[0].Indices.Dispose();
+
+            SlicePlane.Shapes[0].Vertices = new VerticesData<VertexData_ShapeAndIndex>(slicePlane.ToArray());
+            SlicePlane.Shapes[0].Indices = new IndicesData<uint>(slicePlaneIndex.ToArray());
+
+            SlicePlane.Shapes[0].Set(new VerticesData<VertexData_ShapeAndIndex>(slicePlane.ToArray()), new IndicesData<uint>(slicePlaneIndex.ToArray()));
+
+            BufferDescription bufferDesc = new BufferDescription()
+            {
+                elementSize = 12,
+                numElements = buffer2.Count
+            };
+
+            SlicePlane.Buffer = new BufferResource(ref bufferDesc, buffer2.ToArray());
+            SlicePlane.SetBuffer(SlicePlane.Buffer);
+
+            Surface.Unlock();
+            SlicePlane.Unlock();
         }
 
         //private void GetSurface(UDC udc)
@@ -394,29 +585,29 @@ namespace MATVisualizer.Graphics
                         {
                             if(node3)
                             {
-                                vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[0] - 1].Coord, GC_DataIndex1 = bufferIndex });
-                                vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[1] - 1].Coord, GC_DataIndex1 = bufferIndex });
-                                vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[2] - 1].Coord, GC_DataIndex1 = bufferIndex });
+                                vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[0]].Coord, GC_DataIndex1 = bufferIndex });
+                                vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[1]].Coord, GC_DataIndex1 = bufferIndex });
+                                vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[2]].Coord, GC_DataIndex1 = bufferIndex });
                             }
                             else
                             {
-                                vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[0] - 1].Coord, GC_DataIndex1 = bufferIndex });
-                                vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[3] - 1].Coord, GC_DataIndex1 = bufferIndex });
-                                vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[1] - 1].Coord, GC_DataIndex1 = bufferIndex });
+                                vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[0]].Coord, GC_DataIndex1 = bufferIndex });
+                                vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[3]].Coord, GC_DataIndex1 = bufferIndex });
+                                vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[1]].Coord, GC_DataIndex1 = bufferIndex });
                             }
                         }
                         else
                         {
-                            vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[0] - 1].Coord, GC_DataIndex1 = bufferIndex });
-                            vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[2] - 1].Coord, GC_DataIndex1 = bufferIndex });
-                            vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[3] - 1].Coord, GC_DataIndex1 = bufferIndex });
+                            vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[0]].Coord, GC_DataIndex1 = bufferIndex });
+                            vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[2]].Coord, GC_DataIndex1 = bufferIndex });
+                            vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[3]].Coord, GC_DataIndex1 = bufferIndex });
                         }
                     }
                     else
                     {
-                        vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[3] - 1].Coord, GC_DataIndex1 = bufferIndex });
-                        vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[2] - 1].Coord, GC_DataIndex1 = bufferIndex });
-                        vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[1] - 1].Coord, GC_DataIndex1 = bufferIndex });
+                        vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[3]].Coord, GC_DataIndex1 = bufferIndex });
+                        vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[2]].Coord, GC_DataIndex1 = bufferIndex });
+                        vertex.Add(new VertexData_ShapeAndIndex() { SV_Position = nodeArray[nodes[1]].Coord, GC_DataIndex1 = bufferIndex });
                     }
 
                     buffer.Add(ColorConverter.HSVtoRGB(0.7f - t1.cell.Data[3] * 20, 1f, 1f));
