@@ -29,8 +29,8 @@ namespace TestApp
         public OutputFunction F { get; set; }
         public double Threshold { get; set; }
         public bool IsConstant { get; set; }
-        public static double alpha = 0.5;
-        public static double beta = 0.5;
+        public static double alpha = -1.0;
+        public static double beta = -1.0;
 
         private static Random rand = new Random();
 
