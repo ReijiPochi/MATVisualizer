@@ -121,7 +121,6 @@ void GraphicsCore::Render()
 			else
 			{
 				GraphicsCore::pDeviceContext->Draw(shape->numVertices, 0);
-				//MessageBoxA(NULL, "abc", "nind", MB_OK);
 			}
 		}
 	}
@@ -378,12 +377,22 @@ void AddToRenderingListCallback(void* data)
 			}
 
 			queueDoing = true;
-			for (std::vector<CallbackData>::iterator itr = GraphicsCore::queue.begin(); itr != GraphicsCore::queue.end(); ++itr)
+			try 
 			{
-				CallbackData callback = *itr;
-				callback.function(callback.data);
+				for (std::vector<CallbackData>::iterator itr = GraphicsCore::queue.begin(); itr != GraphicsCore::queue.end(); ++itr)
+				{
+					CallbackData callback = *itr;
+					if (callback.function == NULL || callback.data == nullptr)
+						continue;
+
+					callback.function(callback.data);
+				}
+				GraphicsCore::queue.clear();
 			}
-			GraphicsCore::queue.clear();
+			catch (...)
+			{
+				throw "ERROR_114514";
+			}
 			queueDoing = false;
 
 			GraphicsCore::rendering = true;

@@ -141,13 +141,13 @@ namespace TestApp
                 E = Y1.OutputValue - t;
 
 
-                //Y1.BP_v(E);
-                //Y1.Threshold = Neuron.GetWait(Const2, Y1);
+                Y1.BP_v(E);
+                Y1.Threshold = Neuron.GetWait(Const2, Y1);
 
-                //X1.BP_w(E, Y1);
-                //X1.Threshold = Neuron.GetWait(Const1, X1);
-                //X2.BP_w(E, Y1);
-                //X2.Threshold = Neuron.GetWait(Const1, X2);
+                X1.BP_w(E, Y1);
+                X1.Threshold = Neuron.GetWait(Const1, X1);
+                X2.BP_w(E, Y1);
+                X2.Threshold = Neuron.GetWait(Const1, X2);
 
 
                 for (int i = 3; i > 0; i--)

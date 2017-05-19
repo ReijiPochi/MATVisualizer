@@ -9,8 +9,14 @@ using System.Runtime.InteropServices;
 
 namespace MATVisualizer.Graphics
 {
+    /// <summary>
+    /// Direct3Dで描画されるオブジェクトの抽象クラスです。
+    /// </summary>
     public abstract class Object3D
     {
+        /// <summary>
+        /// GraphicsCore によって生成されたハンドルです。
+        /// </summary>
         public IntPtr objectHandle;
 
         protected void Create(GraphicsObjectDescription desc)
