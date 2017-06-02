@@ -1,14 +1,16 @@
+#include <windows.h>
+#include <cstdio>
+#include <initguid.h>
+#include <d3d11_4.h>
+#include <dxgi1_5.h>
+#include <dxgidebug.h>
+#include <d3dcompiler.h>
+// インクルードの順番は大事。
 #include "GraphicsCore.h"
 #include "GraphicsObject.h"
 #include "ConstantBuffer.h"
 #include "ReleasableObject.h"
 #include "Shape.h"
-
-#include <windows.h>
-#include <cstdio>
-#include <d3d11_4.h>
-#include <dxgi1_5.h>
-#include <d3dcompiler.h>
 
 #pragma comment( lib, "d3d11.lib" )
 
@@ -33,6 +35,7 @@ ID3D11DepthStencilView* GraphicsCore::pDepthStencilView = NULL;
 
 bool queueDoing = false;
 bool finalize = false;
+IDXGIDebug* pDxgiDebug;
 
 void InitializeDevice(GraphicsCoreDescription desc);
 
@@ -44,7 +47,7 @@ void ReleaseIUnknown(IUnknown** target)
 	if (target == nullptr)
 		return;
 
-	if (*target != nullptr)
+	if (*target != NULL)
 	{
 		(*target)->Release();
 		*target = nullptr;
@@ -141,6 +144,16 @@ void GraphicsCore::Release()
 	ReleaseIUnknown((IUnknown**)&GraphicsCore::pSwapChain);
 	ReleaseIUnknown((IUnknown**)&GraphicsCore::pDeviceContext);
 	ReleaseIUnknown((IUnknown**)&GraphicsCore::pDevice);
+
+	typedef HRESULT(__stdcall *fPtr)(const IID&, void**);
+	HMODULE hDll = GetModuleHandleW(L"dxgidebug.dll");
+	fPtr DXGIGetDebugInterface = (fPtr)GetProcAddress(hDll, "DXGIGetDebugInterface");
+
+	DXGIGetDebugInterface(__uuidof(IDXGIDebug), (void**)&pDxgiDebug);
+
+	// 出力
+	pDxgiDebug->ReportLiveObjects(DXGI_DEBUG_D3D11, DXGI_DEBUG_RLO_DETAIL);
+
 }
 
 void InitializeDevice(GraphicsCoreDescription desc)

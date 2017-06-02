@@ -184,20 +184,19 @@ void GraphicsObject::DownloadBuffers()
 	}
 }
 
-	void GraphicsObject::Release()
+void GraphicsObject::Release()
 {
 	isLocking = true;
 
 	ReleasableObject::Release();
 
-	for (int i = 0; i < GRAPHICSOBJECT_SHAPE_MAX; i++)
-	{
-		if (shapes[i] != nullptr)
-		{
-			ReleaseIUnknown((IUnknown**)&shapes[i]->vertexBuffer);
-			ReleaseIUnknown((IUnknown**)&shapes[i]->indexBuffer);
-		}
-	}
+	//for (int i = 0; i < GRAPHICSOBJECT_SHAPE_MAX; i++)
+	//{
+	//	if (shapes[i] != nullptr)
+	//	{
+	//		shapes[i]->Release();
+	//	}
+	//}
 
 
 	ReleaseIUnknown((IUnknown**)&description.vs);

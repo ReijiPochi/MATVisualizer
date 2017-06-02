@@ -41,6 +41,9 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.3.0\lib\netstandard1.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -64,7 +67,7 @@
     <Compile Include="Data\UDCCellTypeExt.cs" />
     <Compile Include="Data\UDCLoader.cs" />
     <Compile Include="Data\UDCNode.cs" />
-    <Compile Include="Graphics\BufferResource.cs" />
+    <Compile Include="Graphics\Buffer.cs" />
     <Compile Include="Graphics\Camera.cs" />
     <Compile Include="Graphics\CameraPerspective.cs" />
     <Compile Include="Graphics\Core\GraphicsCoreDescription.cs" />
@@ -87,6 +90,7 @@
     <Compile Include="Graphics\Object3D.cs" />
     <Compile Include="Graphics\Render.cs" />
     <Compile Include="Graphics\Shape.cs" />
+    <Compile Include="Graphics\ShapeCollection.cs" />
     <Compile Include="Graphics\SolidObject.cs" />
     <Compile Include="Graphics\UDCObject.cs" />
     <Compile Include="Graphics\VerticesData.cs" />
@@ -111,6 +115,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

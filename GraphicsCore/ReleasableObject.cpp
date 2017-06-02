@@ -13,6 +13,9 @@ void ReleasableObject::ReleaseAll()
 	{
 		if ((*itr) != nullptr)
 		{
+			if ((*itr)->isReleased)
+				continue;
+
 			(*itr)->Release();
 			delete *itr;
 		}
@@ -21,5 +24,5 @@ void ReleasableObject::ReleaseAll()
 
 void ReleasableObject::Release()
 {
-	
+	isReleased = true;
 }

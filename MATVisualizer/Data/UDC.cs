@@ -71,96 +71,96 @@ namespace MATVisualizer.Data
                 Cells = new UDCCell[CellCount];
         }
 
-        public Object3D ToSolidObject()
-        {
-            VertexData_ShapeAndIndex[] vertices = new VertexData_ShapeAndIndex[CellCount * 12];
-            Vector3[] buffer = new Vector3[CellCount];
+        //public Object3D ToSolidObject()
+        //{
+        //    VertexData_ShapeAndIndex[] vertices = new VertexData_ShapeAndIndex[CellCount * 12];
+        //    Vector3[] buffer = new Vector3[CellCount];
 
-            int vertexIndex = 0;
-            uint dataIndex = 0;
+        //    int vertexIndex = 0;
+        //    uint dataIndex = 0;
 
-            foreach (UDCCell cell in Cells)
-            {
-                uint vertex1 = (uint)cell.Nodes[0] - 1;
-                uint vertex2 = (uint)cell.Nodes[1] - 1;
-                uint vertex3 = (uint)cell.Nodes[2] - 1;
-                uint vertex4 = (uint)cell.Nodes[3] - 1;
+        //    foreach (UDCCell cell in Cells)
+        //    {
+        //        uint vertex1 = (uint)cell.Nodes[0] - 1;
+        //        uint vertex2 = (uint)cell.Nodes[1] - 1;
+        //        uint vertex3 = (uint)cell.Nodes[2] - 1;
+        //        uint vertex4 = (uint)cell.Nodes[3] - 1;
 
-                vertices[vertexIndex].SV_Position = Nodes[vertex3].Coord;
-                vertices[vertexIndex].GC_DataIndex1 = dataIndex;
-                vertexIndex++;
-                vertices[vertexIndex].SV_Position = Nodes[vertex2].Coord;
-                vertices[vertexIndex].GC_DataIndex1 = dataIndex;
-                vertexIndex++;
-                vertices[vertexIndex].SV_Position = Nodes[vertex1].Coord;
-                vertices[vertexIndex].GC_DataIndex1 = dataIndex;
-                vertexIndex++;
+        //        vertices[vertexIndex].SV_Position = Nodes[vertex3].Coord;
+        //        vertices[vertexIndex].GC_DataIndex1 = dataIndex;
+        //        vertexIndex++;
+        //        vertices[vertexIndex].SV_Position = Nodes[vertex2].Coord;
+        //        vertices[vertexIndex].GC_DataIndex1 = dataIndex;
+        //        vertexIndex++;
+        //        vertices[vertexIndex].SV_Position = Nodes[vertex1].Coord;
+        //        vertices[vertexIndex].GC_DataIndex1 = dataIndex;
+        //        vertexIndex++;
 
-                vertices[vertexIndex].SV_Position = Nodes[vertex4].Coord;
-                vertices[vertexIndex].GC_DataIndex1 = dataIndex;
-                vertexIndex++;
-                vertices[vertexIndex].SV_Position = Nodes[vertex3].Coord;
-                vertices[vertexIndex].GC_DataIndex1 = dataIndex;
-                vertexIndex++;
-                vertices[vertexIndex].SV_Position = Nodes[vertex1].Coord;
-                vertices[vertexIndex].GC_DataIndex1 = dataIndex;
-                vertexIndex++;
+        //        vertices[vertexIndex].SV_Position = Nodes[vertex4].Coord;
+        //        vertices[vertexIndex].GC_DataIndex1 = dataIndex;
+        //        vertexIndex++;
+        //        vertices[vertexIndex].SV_Position = Nodes[vertex3].Coord;
+        //        vertices[vertexIndex].GC_DataIndex1 = dataIndex;
+        //        vertexIndex++;
+        //        vertices[vertexIndex].SV_Position = Nodes[vertex1].Coord;
+        //        vertices[vertexIndex].GC_DataIndex1 = dataIndex;
+        //        vertexIndex++;
 
-                vertices[vertexIndex].SV_Position = Nodes[vertex2].Coord;
-                vertices[vertexIndex].GC_DataIndex1 = dataIndex;
-                vertexIndex++;
-                vertices[vertexIndex].SV_Position = Nodes[vertex4].Coord;
-                vertices[vertexIndex].GC_DataIndex1 = dataIndex;
-                vertexIndex++;
-                vertices[vertexIndex].SV_Position = Nodes[vertex1].Coord;
-                vertices[vertexIndex].GC_DataIndex1 = dataIndex;
-                vertexIndex++;
+        //        vertices[vertexIndex].SV_Position = Nodes[vertex2].Coord;
+        //        vertices[vertexIndex].GC_DataIndex1 = dataIndex;
+        //        vertexIndex++;
+        //        vertices[vertexIndex].SV_Position = Nodes[vertex4].Coord;
+        //        vertices[vertexIndex].GC_DataIndex1 = dataIndex;
+        //        vertexIndex++;
+        //        vertices[vertexIndex].SV_Position = Nodes[vertex1].Coord;
+        //        vertices[vertexIndex].GC_DataIndex1 = dataIndex;
+        //        vertexIndex++;
 
-                vertices[vertexIndex].SV_Position = Nodes[vertex2].Coord;
-                vertices[vertexIndex].GC_DataIndex1 = dataIndex;
-                vertexIndex++;
-                vertices[vertexIndex].SV_Position = Nodes[vertex3].Coord;
-                vertices[vertexIndex].GC_DataIndex1 = dataIndex;
-                vertexIndex++;
-                vertices[vertexIndex].SV_Position = Nodes[vertex4].Coord;
-                vertices[vertexIndex].GC_DataIndex1 = dataIndex;
-                vertexIndex++;
+        //        vertices[vertexIndex].SV_Position = Nodes[vertex2].Coord;
+        //        vertices[vertexIndex].GC_DataIndex1 = dataIndex;
+        //        vertexIndex++;
+        //        vertices[vertexIndex].SV_Position = Nodes[vertex3].Coord;
+        //        vertices[vertexIndex].GC_DataIndex1 = dataIndex;
+        //        vertexIndex++;
+        //        vertices[vertexIndex].SV_Position = Nodes[vertex4].Coord;
+        //        vertices[vertexIndex].GC_DataIndex1 = dataIndex;
+        //        vertexIndex++;
 
 
-                buffer[dataIndex] = ColorConverter.HSVtoRGB(new Vector3(0.7f - cell.Data[3] * 20, 1f, 1f));
-                dataIndex++;
+        //        buffer[dataIndex] = ColorConverter.HSVtoRGB(new Vector3(0.7f - cell.Data[3] * 20, 1f, 1f));
+        //        dataIndex++;
 
-                //if (dataIndex > 0)
-                //break;
-            }
+        //        //if (dataIndex > 0)
+        //        //break;
+        //    }
 
-            GraphicsObjectDescription desc = new GraphicsObjectDescription()
-            {
-                vertexType = VertexType.ShapeAndValue,
-                primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY.TRIANGLELIST,
-            };
+        //    GraphicsObjectDescription desc = new GraphicsObjectDescription()
+        //    {
+        //        vertexType = VertexType.ShapeAndValue,
+        //        primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY.TRIANGLELIST,
+        //    };
 
-            Shader.GenerateVertexShaderAndInputLayout("Resources/Effects/Sample.fx", "VSFunc", ref desc, out desc.vs, out desc.inputLayout);
-            //Shader.GenerateGeometryShader("Resources/Effects/Sample.fx", "GSFunc", out desc.gs);
-            Shader.GeneratePixelShader("Resources/Effects/Sample.fx", "PSFunc", out desc.ps);
+        //    Shader.GenerateVertexShaderAndInputLayout("Resources/Effects/Sample.fx", "VSFunc", ref desc, out desc.vs, out desc.inputLayout);
+        //    //Shader.GenerateGeometryShader("Resources/Effects/Sample.fx", "GSFunc", out desc.gs);
+        //    Shader.GeneratePixelShader("Resources/Effects/Sample.fx", "PSFunc", out desc.ps);
 
-            SolidObject obj1 = new SolidObject(desc);
+        //    SolidObject obj1 = new SolidObject(desc);
 
-            obj1.Shapes[0] = new Shape(new VerticesData<VertexData_ShapeAndIndex>(vertices), null);
+        //    obj1.Shapes[0] = new Shape(new VerticesData<VertexData_ShapeAndIndex>(vertices), null);
 
-            BufferDescription bufferDesc = new BufferDescription()
-            {
-                elementSize = 12,
-                numElements = buffer.Length
-            };
+        //    BufferDescription bufferDesc = new BufferDescription()
+        //    {
+        //        elementSize = 12,
+        //        numElements = buffer.Length
+        //    };
 
-            BufferResource bufferResource = new BufferResource(ref bufferDesc, buffer);
+        //    Buffer bufferResource = new Buffer(ref bufferDesc, buffer);
 
-            obj1.SetBuffer(bufferResource);
+        //    obj1.SetBuffer(bufferResource);
 
-            obj1.Unlock();
+        //    obj1.Unlock();
 
-            return obj1;
-        }
+        //    return obj1;
+        //}
     }
 }

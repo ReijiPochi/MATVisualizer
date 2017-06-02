@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace MATVisualizer.Graphics
 {
+    /// <summary>
+    /// レンダリング可能な、通常の3Dオブジェクトです。
+    /// </summary>
     public class SolidObject : Object3D
     {
         public SolidObject()
@@ -19,9 +22,12 @@ namespace MATVisualizer.Graphics
             Unlock();
         }
 
-        public Shape[] Shapes { get; set; } = new Shape[8];
+        /// <summary>
+        /// このオブジェクトのShapeデータです。
+        /// </summary>
+        public Shape[] Shapes { get; protected set; } = new Shape[8];
 
-        public BufferResource Buffer { get; set; }
+        public Buffer Buffer { get; set; }
 
         public void SetShapes()
         {

@@ -41,7 +41,7 @@ namespace MATVisualizer.Graphics
                 new Vector3(0.2f, 0.8f, 0.2f)
             };
 
-            BufferResource buffer = new BufferResource(ref bDesc, bData);
+            Buffer buffer = new Buffer(ref bDesc, bData);
 
             SetBuffer(buffer);
 

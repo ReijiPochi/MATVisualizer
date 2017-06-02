@@ -19,29 +19,49 @@ namespace MATVisualizer.Graphics
         /// </summary>
         public IntPtr objectHandle;
 
+        /// <summary>
+        /// ハンドルを取得します。
+        /// </summary>
+        /// <param name="desc"></param>
         protected void Create(GraphicsObjectDescription desc)
         {
             objectHandle = GraphicsObject.Create(desc);
         }
 
+        /// <summary>
+        /// オブジェクトをレンダリングされないようにします。
+        /// </summary>
         public void Lock()
         {
             if (objectHandle != IntPtr.Zero)
                 GraphicsObject.SetLock(objectHandle, true);
         }
 
+        /// <summary>
+        /// オブジェクトをレンダリングされるようにします。
+        /// </summary>
         public void Unlock()
         {
             if (objectHandle != IntPtr.Zero)
                 GraphicsObject.SetLock(objectHandle, false);
         }
 
-        public void SetShape(Shape shape, int slot)
+        /// <summary>
+        /// Shapeデータをオブジェクトに登録します。
+        /// </summary>
+        /// <param name="shape">登録する Shapeデータ</param>
+        /// <param name="slot">登録先のスロット (0 ~ 7)</param>
+        protected internal void SetShape(Shape shape, int slot)
         {
             GraphicsObject.SetShape(objectHandle, slot, shape.shapeHandle);
         }
 
-        public void SetBuffer(BufferResource buffer, int slot = 0)
+        /// <summary>
+        /// Bufferデータをオブジェクトに登録します。
+        /// </summary>
+        /// <param name="buffer">登録する Bufferデータ</param>
+        /// <param name="slot">登録先のスロット (0 = 7)</param>
+        protected internal void SetBuffer(Buffer buffer, int slot = 0)
         {
             GraphicsObject.SetBuffer(objectHandle, slot, buffer.handle);
         }

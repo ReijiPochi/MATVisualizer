@@ -358,7 +358,7 @@ namespace MATVisualizer.Graphics
                 numElements = buffer2.Count
             };
 
-            SlicePlane.Buffer = new BufferResource(ref bufferDesc, buffer2.ToArray());
+            SlicePlane.Buffer = new Buffer(ref bufferDesc, buffer2.ToArray());
             SlicePlane.SetBuffer(SlicePlane.Buffer);
 
             Surface.Unlock();
@@ -638,7 +638,7 @@ namespace MATVisualizer.Graphics
                 numElements = buffer.Count
             };
 
-            Surface.Buffer = new BufferResource(ref bufferDesc, buffer.ToArray());
+            Surface.Buffer = new Buffer(ref bufferDesc, buffer.ToArray());
         }
 
         private bool Included(Polygon t, UDCCell cell)

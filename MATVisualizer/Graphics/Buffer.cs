@@ -9,9 +9,9 @@ using System.Runtime.InteropServices;
 namespace MATVisualizer.Graphics
 {
 
-    public class BufferResource
+    public class Buffer
     {
-        public BufferResource(ref BufferDescription desc, object data)
+        public Buffer(ref BufferDescription desc, object data)
         {
             GCHandle ptr = GCHandle.Alloc(data, GCHandleType.Pinned);
             handle = _Buffer.Create(ref desc, ptr.AddrOfPinnedObject());

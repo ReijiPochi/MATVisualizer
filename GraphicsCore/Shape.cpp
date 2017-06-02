@@ -10,6 +10,20 @@ struct SetUpdateCallbackArgs
 	UINT numIndex;
 };
 
+//std::vector<Shape*> *Shape::shapeList = new std::vector<Shape*>;
+//
+//void Shape::ReleaseAll()
+//{
+//	for (std::vector<Shape*>::iterator itr = shapeList->begin(); itr != shapeList->end(); ++itr)
+//	{
+//		if ((*itr) != nullptr)
+//		{
+//			(*itr)->Release();
+//			delete *itr;
+//		}
+//	}
+//}
+
 Shape::Shape(VertexType type)
 {
 	vertexType = type;
@@ -17,6 +31,8 @@ Shape::Shape(VertexType type)
 	indexBuffer = nullptr;
 	numVertices = 0;
 	numIndices = 0;
+
+	//shapeList->push_back(this);
 }
 
 HRESULT Shape::Set(void* vertex, UINT numVertex, void* index, UINT numIndex)
@@ -118,8 +134,12 @@ void Shape::Release()
 {
 	ReleasableObject::Release();
 
-	ReleaseIUnknown((IUnknown**)vertexBuffer);
-	ReleaseIUnknown((IUnknown**)indexBuffer);
+	if (vertexBuffer)vertexBuffer->Release();
+	if (indexBuffer)indexBuffer->Release();
+
+	// なんでかReleaseIUnknownを使うとアクセス違反が
+	//ReleaseIUnknown((IUnknown**)vertexBuffer);
+	//ReleaseIUnknown((IUnknown**)indexBuffer);
 }
 
 void SetCallback(void* data)

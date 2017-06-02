@@ -5,13 +5,16 @@
 #include "DataTypesDefinition.h"
 #include <d3d11_4.h>
 
-class Shape : public ReleasableObject
+struct Shape : public ReleasableObject
 {
+private:
+	//static std::vector<Shape*> *shapeList;
 public:
+	//static void ReleaseAll();
 	Shape(VertexType type);
-	ID3D11Buffer* vertexBuffer;
+	ID3D11Buffer* vertexBuffer = nullptr;
 	VertexType vertexType;
-	ID3D11Buffer* indexBuffer;
+	ID3D11Buffer* indexBuffer = nullptr;
 	UINT numVertices;
 	UINT numIndices;
 	HRESULT Set(void* vertex, UINT numVertex, void* index, UINT numIndex);
