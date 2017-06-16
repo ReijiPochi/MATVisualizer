@@ -36,5 +36,8 @@ namespace MATVisualizer.Graphics.Core
 
         [DllImport("GraphicsCore.dll", EntryPoint = "GraphicsObject_SetLock", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern void SetLock(IntPtr obj, bool locking);
+
+        [DllImport("GraphicsCore.dll", EntryPoint = "GrapgicsObject_GetShape", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern IntPtr GetShape(IntPtr obj, int slot);
     }
 }

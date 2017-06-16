@@ -239,3 +239,8 @@ DLL_API void GraphicsObject_SetLock(GraphicsObject* object, bool lock)
 {
 	object->isLocking = lock;
 }
+
+DLL_API Shape* GrapgicsObject_GetShape(GraphicsObject* object, int slot)
+{
+	return object->shapes[slot];
+}

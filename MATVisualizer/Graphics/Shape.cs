@@ -9,6 +9,11 @@ namespace MATVisualizer.Graphics
 {
     public class Shape
     {
+        public Shape(VertexType type)
+        {
+            shapeHandle = _Shape.Create(type);
+        }
+
         public Shape(VerticesData vertices)
         {
             shapeHandle = _Shape.Create(vertices.Type);

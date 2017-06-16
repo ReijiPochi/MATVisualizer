@@ -29,20 +29,18 @@ namespace MATVisualizer.Graphics
             }
 
             Surface = new SolidObject(description);
-            Surface.Shapes[1] = new Shape(new VerticesData<VertexData_ShapeAndIndex>(new VertexData_ShapeAndIndex[1]), new IndicesData<uint>(new uint[1]));
+            Surface.Shapes[1] = new Shape(VertexType.ShapeAndValue);
 
             SlicePlane = new SolidObject(description);
-            SlicePlane.Shapes[0] = new Shape(new VerticesData<VertexData_ShapeAndIndex>(new VertexData_ShapeAndIndex[1]), new IndicesData<uint>(new uint[1]));
+            SlicePlane.Shapes[0] = new Shape(VertexType.ShapeAndValue);
 
             //GetSurface(udc);
             GetSurface2(udc);
             Surface.SetBuffer(Surface.Buffer);
 
-            Surface.SetShapes();
             Surface.Unlock();
             Render.AddObject(Surface);
 
-            SlicePlane.SetShapes();
             Render.AddObject(SlicePlane);
         }
 
@@ -61,6 +59,11 @@ namespace MATVisualizer.Graphics
         public SolidObject SlicePlane { get; set; }
         private uint[] originalIndices;
 
+        /// <summary>
+        /// このUDCObjectに設定されているUDCデータを指定された面で切断・断面抽出します。
+        /// </summary>
+        /// <param name="position">面の中心座標</param>
+        /// <param name="normal">面の法線</param>
         public void Slice(Vector3 position, Vector3 normal)
         {
             IndicesData<uint> indices = (IndicesData<uint>)Surface.Shapes[0].Indices;
@@ -504,6 +507,10 @@ namespace MATVisualizer.Graphics
         //    Surface.Buffer = new BufferResource(ref bufferDesc, buffer.ToArray());
         //}
 
+        /// <summary>
+        /// UDCデータの表面を抽出し、このUDCObjectに設定します。
+        /// </summary>
+        /// <param name="udc"></param>
         private void GetSurface2(UDC udc)
         {
             Polygon[] polys = new Polygon[udc.CellCount * 4 + 1];
@@ -641,6 +648,26 @@ namespace MATVisualizer.Graphics
             Surface.Buffer = new Buffer(ref bufferDesc, buffer.ToArray());
         }
 
+        /// <summary>
+        /// インデックス番号pの点がポリゴンtに含まれているか判定します。
+        /// </summary>
+        /// <param name="p">判定する点</param>
+        /// <param name="t">判定するポリゴン</param>
+        /// <returns>true:pはtに含まれる</returns>
+        private bool Included(int p, Polygon t)
+        {
+            if (t.p1 == p || t.p2 == p || t.p3 == p)
+                return true;
+
+            return false;
+        }
+
+        /// <summary>
+        /// ポリゴンtがUDCセルcellに含まれているか判定します。
+        /// </summary>
+        /// <param name="t">判定するポリゴン</param>
+        /// <param name="cell">判定するUDCセル</param>
+        /// <returns></returns>
         private bool Included(Polygon t, UDCCell cell)
         {
             bool p1Inside = false, p2Inside = false, p3Inside = false;
@@ -658,12 +685,5 @@ namespace MATVisualizer.Graphics
             return false;
         }
 
-        private bool Included(int p, Polygon t)
-        {
-            if (t.p1 == p) return true;
-            if (t.p2 == p) return true;
-            if (t.p3 == p) return true;
-            return false;
-        }
     }
 }

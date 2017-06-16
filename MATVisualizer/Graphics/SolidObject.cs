@@ -13,11 +13,12 @@ namespace MATVisualizer.Graphics
     {
         public SolidObject()
         {
-
+            Shapes = new ShapeCollection(this);
         }
 
         public SolidObject(Graphics.Core.GraphicsObjectDescription desc)
         {
+            Shapes = new ShapeCollection(this);
             Create(desc);
             Unlock();
         }
@@ -25,19 +26,8 @@ namespace MATVisualizer.Graphics
         /// <summary>
         /// このオブジェクトのShapeデータです。
         /// </summary>
-        public Shape[] Shapes { get; protected set; } = new Shape[8];
+        public ShapeCollection Shapes { get; protected set; }
 
         public Buffer Buffer { get; set; }
-
-        public void SetShapes()
-        {
-            for(int i = 0; i < 8; i++)
-            {
-                if(Shapes[i] != null)
-                {
-                    SetShape(Shapes[i], i);
-                }
-            }
-        }
     }
 }

@@ -26,38 +26,37 @@ namespace MATVisualizer.Graphics
         /// </summary>
         private Object3D owner;
 
-        //private Shape[] shapes = new Shape[8];
+        private Shape[] shapes = new Shape[8];
+
+        public Shape this[int i]
+        {
+            get
+            {
+                if (i < 0 || i >= 8)
+                    throw new Exception("ShapeCollection のスロット（インデックス）は 0 ~ 7 である必要があります。");
+
+                if (shapes[i].shapeHandle != owner.GetShape(i))
+                    throw new Exception("ShapeCollection と GraphicsObject::shapes[8] の対応がとれていないため、Shapeデータを取得できません。");
+
+                return shapes[i];
+            }
+            set
+            {
+                shapes[i] = value;
+                owner.SetShape(value, i);
+            }
+        }
 
         public int Count { get; protected set; }
 
-        //public void Set(Shape shape)
-        //{
-        //    if (Count >= 8)
-        //        throw new Exception("ShapeCollection はこれ以上 Shape を追加できません。");
+        public void Set(Shape shape, int slot)
+        {
+            if (slot >= 8 || slot < 0)
+                throw new Exception("ShapeCollection の slot は 0 ~ 7 である必要があります。");
 
-        //    shapes[Count] = shape ?? throw new ArgumentNullException("shape");
+            shapes[slot] = shape ?? throw new ArgumentNullException("shape");
 
-        //    owner.SetShape(shape, Count);
-        //}
-
-        //public void Set(Shape shape, int slot)
-        //{
-        //    if (slot >= 8 || slot < 0)
-        //        throw new Exception("ShapeCollection の slot は 0 ~ 7 である必要があります。");
-
-        //    shapes[slot] = shape ?? throw new ArgumentNullException("shape");
-
-        //    owner.SetShape(shape, slot);
-        //}
-
-        //public void Update(Shape shape)
-        //{
-
-        //}
-
-        //public void Update(int slot)
-        //{
-
-        //}
+            owner.SetShape(shape, slot);
+        }
     }
 }
