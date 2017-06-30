@@ -10,7 +10,7 @@ struct BufferDescription
 	int numElements;
 };
 
-class Buffer : public ReleasableObject
+struct Buffer
 {
 public:
 	static Buffer* Create(BufferDescription* desc, void* data);
@@ -21,3 +21,4 @@ public:
 
 
 DLL_API Buffer* Buffer_Create(BufferDescription* desc, void* data);
+DLL_API void Buffer_Release(Buffer* buffer);

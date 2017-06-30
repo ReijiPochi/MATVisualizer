@@ -27,6 +27,9 @@ namespace MATVisualizer.Graphics.Core
         [DllImport("GraphicsCore.dll", EntryPoint = "GraphicsCore_Finalize", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern void GraphicsCore_Finalize();
 
+        [DllImport("GraphicsCore.dll", EntryPoint = "GraphicsCore_GetFinalizeState", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern int GetFinalizeState();
+
         [DllImport("GraphicsCore.dll", EntryPoint = "TEST", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern IntPtr Test(ref GraphicsObjectDescription desc);
     }

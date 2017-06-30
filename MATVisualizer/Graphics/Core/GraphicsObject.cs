@@ -13,18 +13,6 @@ namespace MATVisualizer.Graphics.Core
         [DllImport("GraphicsCore.dll", EntryPoint = "GraphicsObject_Create", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern IntPtr Create(GraphicsObjectDescription desc);
 
-        //[DllImport("GraphicsCore.dll", EntryPoint = "GraphicsObject_SetVertices", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        //public static extern HRESULT SetVertices(IntPtr obj, IntPtr data, uint length);
-
-        //[DllImport("GraphicsCore.dll", EntryPoint = "GraphicsObject_SetIndices", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        //public static extern HRESULT SetIndices(IntPtr obj, IntPtr data, uint length);
-
-        //[DllImport("GraphicsCore.dll", EntryPoint = "GraphicsObject_SetShape", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        //public static extern HRESULT SetShape(IntPtr obj, int slot, IntPtr vertex, uint numVertex, IntPtr index, uint numIndex);
-
-        //[DllImport("GraphicsCore.dll", EntryPoint = "GraphicsObject_UpdateShape", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
-        //public static extern void UpdateShape(IntPtr obj, int slot, IntPtr vertex, uint numVertex, IntPtr index, uint numIndex);
-
         [DllImport("GraphicsCore.dll", EntryPoint = "GraphicsObject_SetTexture", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern void SetTexture(IntPtr obj, int slot, IntPtr texture);
 
@@ -39,5 +27,8 @@ namespace MATVisualizer.Graphics.Core
 
         [DllImport("GraphicsCore.dll", EntryPoint = "GrapgicsObject_GetShape", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern IntPtr GetShape(IntPtr obj, int slot);
+
+        [DllImport("GraphicsCore.dll", EntryPoint = "GrapgicsObject_GetBuffer", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern IntPtr GetBuffer(IntPtr obj, int slot);
     }
 }

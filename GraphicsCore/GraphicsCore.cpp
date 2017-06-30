@@ -16,7 +16,7 @@
 
 bool GraphicsCore::Ready = false;
 bool GraphicsCore::rendering = false;
-RenderCallback* GraphicsCore::callback = nullptr;
+RenderCallback GraphicsCore::callback = nullptr;
 std::vector<CallbackData> GraphicsCore::queue;
 HWND GraphicsCore::hWnd = NULL;
 float GraphicsCore::viewHeight = 1.0f;
@@ -301,6 +301,8 @@ void InitializeDevice(GraphicsCoreDescription desc)
 
 	GraphicsCore::pGlobalCBuffer = ConstantBuffer::Create(cbufferDesc);
 
+	GraphicsCore::callback = desc.callback;
+
 	GraphicsCore::Ready = true;
 }
 
@@ -389,24 +391,19 @@ void AddToRenderingListCallback(void* data)
 				(*GraphicsCore::callback)();
 			}
 
-			queueDoing = true;
-			try 
-			{
-				for (std::vector<CallbackData>::iterator itr = GraphicsCore::queue.begin(); itr != GraphicsCore::queue.end(); ++itr)
-				{
-					CallbackData callback = *itr;
-					if (callback.function == NULL || callback.data == nullptr)
-						continue;
+			//queueDoing = true;
 
-					callback.function(callback.data);
-				}
-				GraphicsCore::queue.clear();
-			}
-			catch (...)
-			{
-				throw "ERROR_114514";
-			}
-			queueDoing = false;
+			//	for (std::vector<CallbackData>::iterator itr = GraphicsCore::queue.begin(); itr != GraphicsCore::queue.end(); ++itr)
+			//	{
+			//		CallbackData callback = *itr;
+			//		if (callback.function == NULL || callback.data == nullptr)
+			//			continue;
+
+			//		callback.function(callback.data);
+			//	}
+			//	GraphicsCore::queue.clear();
+
+			//queueDoing = false;
 
 			GraphicsCore::rendering = true;
 			
@@ -433,6 +430,8 @@ void AddToRenderingListCallback(void* data)
 
 		GraphicsCore::Release();
 
+		finalize = false;
+
 		return 1;
 	}
 
@@ -443,11 +442,13 @@ void AddToRenderingListCallback(void* data)
 
 	DLL_API void GraphicsCore_AddToRenderingList(GraphicsObject* object)
 	{
-		CallbackData* callback = new CallbackData;
-		callback->function = AddToRenderingListCallback;
-		callback->data = object;
+		//CallbackData* callback = new CallbackData;
+		//callback->function = AddToRenderingListCallback;
+		//callback->data = object;
 
-		AddToQueue(*callback);
+		//AddToQueue(*callback);
+
+		GraphicsCore::pRenderingList.push_back(object);
 	}
 
 	DLL_API void GraphicsCore_SetCamera(Camera* camera)
@@ -455,14 +456,21 @@ void AddToRenderingListCallback(void* data)
 		GraphicsCore::pCamera = camera;
 	}
 
+	DLL_API void GraphicsCore_SetCallback(void(*callback)())
+	{
+		GraphicsCore::callback = callback;
+	}
+
 	DLL_API HRESULT GraphicsCore_Resize(int width, int height)
 	{
-		CallbackData* callback = new CallbackData;
+		//CallbackData* callback = new CallbackData;
 		Vector2* size = new Vector2(width, height);
-		callback->function = ResizeCallback;
-		callback->data = size;
+		//callback->function = ResizeCallback;
+		//callback->data = size;
 
-		AddToQueue(*callback);
+		//AddToQueue(*callback);
+
+		ResizeCallback(size);
 
 		return S_OK;
 	}
@@ -470,6 +478,11 @@ void AddToRenderingListCallback(void* data)
 	DLL_API void GraphicsCore_Finalize()
 	{
 		finalize = true;
+	}
+
+	DLL_API int GraphicsCore_GetFinalizeState()
+	{
+		return finalize ? 1 : 0;
 	}
 
 	DLL_API GraphicsObject* TEST(GraphicsObjectDescription* desc)

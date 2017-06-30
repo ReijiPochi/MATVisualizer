@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -76,6 +77,25 @@ namespace MATVisualizer
         private CameraPerspective camera;
         private Point previousMousePosition;
 
+        public delegate void PreRenderEventHandler();
+        public event PreRenderEventHandler PreRender;
+
+        private bool resizeFlug;
+
+        /// <summary>
+        /// PreRenderCallback() のデリゲートをハンドルして、GCされないようにします。
+        /// </summary>
+        private static RenderCallback preRenderCallback;
+
+        private void PreRenderCallback()
+        {
+            if (resizeFlug)
+                Dispatcher.Invoke(SetSize);
+
+            if (PreRender != null)
+                Dispatcher.Invoke(PreRender);
+        }
+
         private void ViewWindow_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             if (camera != null)
@@ -126,12 +146,12 @@ namespace MATVisualizer
 
         private void Owner_StateChanged(object sender, EventArgs e)
         {
-            SetSize();
+            resizeFlug = true;
         }
 
         private void ViewControl_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            SetSize();
+            resizeFlug = true;
         }
 
         private void Owner_Closed(object sender, EventArgs e)
@@ -143,7 +163,9 @@ namespace MATVisualizer
         {
             if (viewWindow == null) return;
 
-            Render.Initialize(viewWindow);
+            preRenderCallback = PreRenderCallback;
+
+            Render.Initialize(viewWindow, preRenderCallback);
 
 
             camera = new CameraPerspective()
@@ -175,10 +197,15 @@ namespace MATVisualizer
         {
             if (viewWindow != null)
             {
+                if (ActualHeight < 1 || ActualWidth < 1)
+                    return;
+
                 viewWindow.Width = ActualWidth;
                 viewWindow.Height = ActualHeight;
 
                 Render.Resize(viewWindow);
+
+                resizeFlug = false;
             }
         }
     }

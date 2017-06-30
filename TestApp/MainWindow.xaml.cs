@@ -1,6 +1,5 @@
 ﻿using MATVisualizer.Data;
 using MATVisualizer.Graphics;
-using MATVisualizer.Graphics.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,6 +32,20 @@ namespace TestApp
             InitializeComponent();
             Closed += MainWindow_Closed;
             Application.Current.Exit += Current_Exit;
+            View.PreRender += View_PreRender;
+        }
+
+        double time = 0.0;
+
+        private void View_PreRender()
+        {
+            time += 0.01;
+            pos = Vector3.One * (float)(Math.Sin(time) * 0.05 + 0.05);
+
+            if (udcObj != null)
+            {
+                udcObj.Slice(pos, Vector3.One);
+            }
         }
 
         private void MainWindow_Closed(object sender, EventArgs e)
@@ -47,6 +60,8 @@ namespace TestApp
 
         UDCObject udcObj;
         Vector3 pos = new Vector3(0.05f, 0.05f, 0.05f);
+
+        
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {

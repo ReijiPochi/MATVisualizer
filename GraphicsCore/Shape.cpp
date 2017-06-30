@@ -132,10 +132,11 @@ HRESULT Shape::SetIndices(void* data, UINT length)
 
 void Shape::Release()
 {
-	ReleasableObject::Release();
-
 	if (vertexBuffer)vertexBuffer->Release();
 	if (indexBuffer)indexBuffer->Release();
+
+	vertexBuffer = nullptr;
+	indexBuffer = nullptr;
 
 	// なんでかReleaseIUnknownを使うとアクセス違反が
 	//ReleaseIUnknown((IUnknown**)vertexBuffer);
@@ -163,34 +164,43 @@ DLL_API Shape* Shape_Create(VertexType type)
 
 DLL_API HRESULT Shape_Set(Shape* shape, void* vertex, UINT numVertex, void* index, UINT numIndex)
 {
-	SetUpdateCallbackArgs* args = new SetUpdateCallbackArgs;
-	args->shape = shape;
-	args->vertex = vertex;
-	args->numVertex = numVertex;
-	args->index = index;
-	args->numIndex = numIndex;
+	//SetUpdateCallbackArgs* args = new SetUpdateCallbackArgs;
+	//args->shape = shape;
+	//args->vertex = vertex;
+	//args->numVertex = numVertex;
+	//args->index = index;
+	//args->numIndex = numIndex;
 
-	CallbackData* callback = new CallbackData;
-	callback->function = SetCallback;
-	callback->data = args;
+	//CallbackData* callback = new CallbackData;
+	//callback->function = SetCallback;
+	//callback->data = args;
 
-	AddToQueue(*callback);
+	//AddToQueue(*callback);
+
+	shape->Set(vertex, numVertex, index, numIndex);
 
 	return S_OK;
 }
 
 DLL_API void Shape_Update(Shape* shape, void* vertex, UINT numVertex, void* index, UINT numIndex)
 {
-	SetUpdateCallbackArgs* args = new SetUpdateCallbackArgs;
-	args->shape = shape;
-	args->vertex = vertex;
-	args->numVertex = numVertex;
-	args->index = index;
-	args->numIndex = numIndex;
+	//SetUpdateCallbackArgs* args = new SetUpdateCallbackArgs;
+	//args->shape = shape;
+	//args->vertex = vertex;
+	//args->numVertex = numVertex;
+	//args->index = index;
+	//args->numIndex = numIndex;
 
-	CallbackData* callback = new CallbackData;
-	callback->function = UpdateCallback;
-	callback->data = args;
+	//CallbackData* callback = new CallbackData;
+	//callback->function = UpdateCallback;
+	//callback->data = args;
 
-	AddToQueue(*callback);
+	//AddToQueue(*callback);
+
+	shape->Update(vertex, numVertex, index,numIndex);
+}
+
+DLL_API void Shape_Release(Shape* shape)
+{
+	shape->Release();
 }

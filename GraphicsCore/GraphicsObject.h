@@ -67,3 +67,4 @@ DLL_API void GraphicsObject_SetBuffer(GraphicsObject* object, int slot, Buffer* 
 DLL_API void GraphicsObject_SetShape(GraphicsObject* object, int slot, Shape* shape);
 DLL_API void GraphicsObject_SetLock(GraphicsObject* object, bool lock);
 DLL_API Shape* GrapgicsObject_GetShape(GraphicsObject* object, int slot);
+DLL_API Buffer* GrapgicsObject_GetBuffer(GraphicsObject* object, int slot);

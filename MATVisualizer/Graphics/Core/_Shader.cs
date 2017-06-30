@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MATVisualizer.Graphics.Core
 {
-    public class Shader
+    public class _Shader
     {
         // DllImport属性のSetLastErrorをtrueにしないとうまくいかない
         [DllImport("GraphicsCore.dll", EntryPoint = "Shader_GenerateVertexShaderAndInputLayout", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]

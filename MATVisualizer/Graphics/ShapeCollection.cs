@@ -32,6 +32,9 @@ namespace MATVisualizer.Graphics
         {
             get
             {
+                if (shapes[0] == null)
+                    return null;
+
                 if (i < 0 || i >= 8)
                     throw new Exception("ShapeCollection のスロット（インデックス）は 0 ~ 7 である必要があります。");
 

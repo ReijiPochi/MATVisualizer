@@ -23,20 +23,20 @@ namespace MATVisualizer.Graphics
                     primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY.TRIANGLELIST,
                 };
 
-                Shader.GenerateVertexShaderAndInputLayout("Resources/Effects/Sample.fx", "VSFunc", ref description, out description.vs, out description.inputLayout);
+                _Shader.GenerateVertexShaderAndInputLayout("Resources/Effects/Sample.fx", "VSFunc", ref description, out description.vs, out description.inputLayout);
                 //Shader.GenerateGeometryShader("Resources/Effects/Sample.fx", "GSFunc", out desc.gs);
-                Shader.GeneratePixelShader("Resources/Effects/Sample.fx", "PSFunc", out description.ps);
+                _Shader.GeneratePixelShader("Resources/Effects/Sample.fx", "PSFunc", out description.ps);
             }
 
             Surface = new SolidObject(description);
-            Surface.Shapes[1] = new Shape(VertexType.ShapeAndValue);
+            Surface.Shapes[1] = new Shape(new VerticesData<VertexData_ShapeAndIndex>(new VertexData_ShapeAndIndex[1]), new IndicesData<uint>(new uint[1]));
 
             SlicePlane = new SolidObject(description);
             SlicePlane.Shapes[0] = new Shape(VertexType.ShapeAndValue);
 
             //GetSurface(udc);
             GetSurface2(udc);
-            Surface.SetBuffer(Surface.Buffer);
+            
 
             Surface.Unlock();
             Render.AddObject(Surface);
@@ -54,13 +54,23 @@ namespace MATVisualizer.Graphics
             public UDCCell cell;
         }
 
+        /// <summary>
+        /// この UDCObject の UDCデータ です。
+        /// </summary>
         public UDC UdcData { get; set; }
+
+        /// <summary>
+        /// 表面形状の3Dオブジェクトです。
+        /// <para>Shape[0] : 元の3D形状</para>
+        /// <para>Shape[1] : 断面抽出するときに、隙間を埋めるために表面に追加で生成される3D形状</para>
+        /// </summary>
         public SolidObject Surface { get; set; }
+
         public SolidObject SlicePlane { get; set; }
         private uint[] originalIndices;
 
         /// <summary>
-        /// このUDCObjectに設定されているUDCデータを指定された面で切断・断面抽出します。
+        /// このUDCObjectのUDCデータを指定された面で切断・断面抽出します。
         /// </summary>
         /// <param name="position">面の中心座標</param>
         /// <param name="normal">面の法線</param>
@@ -322,36 +332,43 @@ namespace MATVisualizer.Graphics
                 }
             }
 
-            Surface.Lock();
-            SlicePlane.Lock();
-
             Surface.Shapes[0].Indices.NumIndices = (uint)indicesIndex;
             Surface.Shapes[0].UpdateIndices();
 
-            if (Surface.Shapes[1].Vertices != null) Surface.Shapes[1].Vertices.Dispose();
-            if (Surface.Shapes[1].Indices != null) Surface.Shapes[1].Indices.Dispose();
+            //if (Surface.Shapes[1].Vertices != null) Surface.Shapes[1].Vertices.Dispose();
+            //if (Surface.Shapes[1].Indices != null) Surface.Shapes[1].Indices.Dispose();
 
-            Surface.Shapes[1].Vertices = new VerticesData<VertexData_ShapeAndIndex>(sliceEdge.ToArray());
-            Surface.Shapes[1].Indices = new IndicesData<uint>(sliceIndex.ToArray());
+            //Surface.Shapes[1].Vertices = new VerticesData<VertexData_ShapeAndIndex>(sliceEdge.ToArray());
+            //Surface.Shapes[1].Indices = new IndicesData<uint>(sliceIndex.ToArray());
 
-            Surface.Shapes[1].Set(Surface.Shapes[1].Vertices, Surface.Shapes[1].Indices);
+            //Surface.Shapes[1].Set(Surface.Shapes[1].Vertices, Surface.Shapes[1].Indices);
 
-            //if (Surface.Shapes[1] == null)
-            //    Surface.Shapes[1] = new Shape(new VerticesData<VertexData_ShapeAndIndex>(new VertexData_ShapeAndIndex[10000]), new IndicesData<uint>(new uint[10000]));
+            if (Surface.Shapes[1].Vertices.NumVertices < sliceEdge.Count)
+            {
+                Surface.Shapes[1].Vertices.Dispose();
+                Surface.Shapes[1].Set(new VerticesData<VertexData_ShapeAndIndex>(sliceEdge.ToArray()));
+            }
+            else
+            {
+                sliceEdge.CopyTo(((VerticesData<VertexData_ShapeAndIndex>)Surface.Shapes[1].Vertices).data);
+                Surface.Shapes[1].Vertices.NumVertices = (uint)sliceEdge.Count;
+            }
 
-            //sliceEdge.CopyTo(((VerticesData<VertexData_ShapeAndIndex>)Surface.Shapes[1].Vertices).data);
-            //Surface.Shapes[1].Vertices.NumVertices = (uint)sliceEdge.Count;
+            if (Surface.Shapes[1].Indices.NumIndices < sliceIndex.Count)
+            {
+                Surface.Shapes[1].Indices.Dispose();
+                Surface.Shapes[1].Set(new IndicesData<uint>(sliceIndex.ToArray()));
+            }
+            else
+            {
+                sliceIndex.CopyTo(((IndicesData<uint>)Surface.Shapes[1].Indices).data);
+                Surface.Shapes[1].Indices.NumIndices = (uint)sliceIndex.Count;
+            }
 
-            //sliceIndex.CopyTo(((IndicesData<uint>)Surface.Shapes[1].Indices).data);
-            //Surface.Shapes[1].Indices.NumIndices = (uint)sliceIndex.Count;
-
-            //Surface.Shapes[1].UpdateAll();
+            Surface.Shapes[1].UpdateAll();
 
             if (SlicePlane.Shapes[0].Vertices != null) SlicePlane.Shapes[0].Vertices.Dispose();
             if (SlicePlane.Shapes[0].Indices != null) SlicePlane.Shapes[0].Indices.Dispose();
-
-            SlicePlane.Shapes[0].Vertices = new VerticesData<VertexData_ShapeAndIndex>(slicePlane.ToArray());
-            SlicePlane.Shapes[0].Indices = new IndicesData<uint>(slicePlaneIndex.ToArray());
 
             SlicePlane.Shapes[0].Set(new VerticesData<VertexData_ShapeAndIndex>(slicePlane.ToArray()), new IndicesData<uint>(slicePlaneIndex.ToArray()));
 
@@ -361,11 +378,9 @@ namespace MATVisualizer.Graphics
                 numElements = buffer2.Count
             };
 
-            SlicePlane.Buffer = new Buffer(ref bufferDesc, buffer2.ToArray());
-            SlicePlane.SetBuffer(SlicePlane.Buffer);
+            if (SlicePlane.Buffers[0] != null) SlicePlane.Buffers[0].Dispose();
 
-            Surface.Unlock();
-            SlicePlane.Unlock();
+            SlicePlane.Buffers[0] = new Buffer(ref bufferDesc, buffer2.ToArray());
         }
 
         //private void GetSurface(UDC udc)
@@ -645,7 +660,7 @@ namespace MATVisualizer.Graphics
                 numElements = buffer.Count
             };
 
-            Surface.Buffer = new Buffer(ref bufferDesc, buffer.ToArray());
+            Surface.Buffers[0] = new Buffer(ref bufferDesc, buffer.ToArray());
         }
 
         /// <summary>

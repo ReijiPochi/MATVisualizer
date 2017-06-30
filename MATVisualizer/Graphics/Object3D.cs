@@ -75,5 +75,15 @@ namespace MATVisualizer.Graphics
         {
             return GraphicsObject.GetShape(objectHandle, slot);
         }
+
+        /// <summary>
+        /// オブジェクトに登録されているBufferデータを取得します。
+        /// </summary>
+        /// <param name="slot">取得元のスロット (0 ~ 7)</param>
+        /// <returns>取得したBufferデータのハンドル</returns>
+        protected internal IntPtr GetBuffer(int slot)
+        {
+            return GraphicsObject.GetBuffer(objectHandle, slot);
+        }
     }
 }

@@ -17,5 +17,8 @@ namespace MATVisualizer.Graphics.Core
 
         [DllImport("GraphicsCore.dll", EntryPoint = "Shape_Update", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern void Update(IntPtr shape, IntPtr vertex, uint numVertex, IntPtr index, uint numIndex);
+
+        [DllImport("GraphicsCore.dll", EntryPoint = "Shape_Release", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void Release(IntPtr shape);
     }
 }

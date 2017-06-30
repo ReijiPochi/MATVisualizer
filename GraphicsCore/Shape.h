@@ -5,7 +5,7 @@
 #include "DataTypesDefinition.h"
 #include <d3d11_4.h>
 
-struct Shape : public ReleasableObject
+struct Shape
 {
 private:
 	//static std::vector<Shape*> *shapeList;
@@ -27,3 +27,4 @@ public:
 DLL_API Shape* Shape_Create(VertexType type);
 DLL_API HRESULT Shape_Set(Shape* shape, void* vertex, UINT numVertex, void* index, UINT numIndex);
 DLL_API void Shape_Update(Shape* shape, void* vertex, UINT numVertex, void* index, UINT numIndex);
+DLL_API void Shape_Release(Shape* shape);

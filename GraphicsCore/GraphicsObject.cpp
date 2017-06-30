@@ -244,3 +244,8 @@ DLL_API Shape* GrapgicsObject_GetShape(GraphicsObject* object, int slot)
 {
 	return object->shapes[slot];
 }
+
+DLL_API Buffer* GrapgicsObject_GetBuffer(GraphicsObject* object, int slot)
+{
+	return object->buffers[slot];
+}

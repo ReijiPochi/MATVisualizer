@@ -67,7 +67,9 @@
     <Compile Include="Data\UDCCellTypeExt.cs" />
     <Compile Include="Data\UDCLoader.cs" />
     <Compile Include="Data\UDCNode.cs" />
+    <Compile Include="DisposableObject.cs" />
     <Compile Include="Graphics\Buffer.cs" />
+    <Compile Include="Graphics\BufferCollection.cs" />
     <Compile Include="Graphics\Camera.cs" />
     <Compile Include="Graphics\CameraPerspective.cs" />
     <Compile Include="Graphics\Core\GraphicsCoreDescription.cs" />
@@ -75,7 +77,7 @@
     <Compile Include="Graphics\Core\VertexTypeExt.cs" />
     <Compile Include="Graphics\Core\_Shape.cs" />
     <Compile Include="Graphics\Core\_Camera.cs" />
-    <Compile Include="Graphics\Core\Shader.cs" />
+    <Compile Include="Graphics\Core\_Shader.cs" />
     <Compile Include="Graphics\Core\_Buffer.cs" />
     <Compile Include="Graphics\Core\BufferDescription.cs" />
     <Compile Include="Graphics\Core\D3D11_PRIMITIVE_TOPOLOGY.cs" />

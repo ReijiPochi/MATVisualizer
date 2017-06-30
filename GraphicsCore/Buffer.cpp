@@ -35,8 +35,6 @@ Buffer* Buffer::Create(BufferDescription* desc, void* data)
 
 void Buffer::Release()
 {
-	ReleasableObject::Release();
-
 	ReleaseIUnknown((IUnknown**)&shaderResource);
 	ReleaseIUnknown((IUnknown**)&buffer);
 }
@@ -44,4 +42,9 @@ void Buffer::Release()
 DLL_API Buffer* Buffer_Create(BufferDescription* desc, void* data)
 {
 	return Buffer::Create(desc, data);
+}
+
+DLL_API void Buffer_Release(Buffer* buffer)
+{
+	buffer->Release();
 }

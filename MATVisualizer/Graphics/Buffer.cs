@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 namespace MATVisualizer.Graphics
 {
 
-    public class Buffer
+    public class Buffer : DisposableObject
     {
         public Buffer(ref BufferDescription desc, object data)
         {
@@ -19,5 +19,16 @@ namespace MATVisualizer.Graphics
         }
 
         public IntPtr handle;
+
+        public override void Dispose()
+        {
+            if (disposed)
+                return;
+
+            _Buffer.Release(handle);
+            handle = IntPtr.Zero;
+
+            base.Dispose();
+        }
     }
 }

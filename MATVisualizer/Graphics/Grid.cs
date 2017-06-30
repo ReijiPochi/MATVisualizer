@@ -18,9 +18,9 @@ namespace MATVisualizer.Graphics
                 primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY.LINELIST,
             };
 
-            Shader.GenerateVertexShaderAndInputLayout("Resources/Effects/Sample.fx", "VSFunc", ref desc, out desc.vs, out desc.inputLayout);
+            _Shader.GenerateVertexShaderAndInputLayout("Resources/Effects/Sample.fx", "VSFunc", ref desc, out desc.vs, out desc.inputLayout);
             //Shader.GenerateGeometryShader("Resources/Effects/Sample.fx", "GSFunc", out desc.gs);
-            Shader.GeneratePixelShader("Resources/Effects/Sample.fx", "PSFunc", out desc.ps);
+            _Shader.GeneratePixelShader("Resources/Effects/Sample.fx", "PSFunc", out desc.ps);
 
             Create(desc);
 
@@ -40,9 +40,7 @@ namespace MATVisualizer.Graphics
                 new Vector3(0.2f, 0.8f, 0.2f)
             };
 
-            Buffer buffer = new Buffer(ref bDesc, bData);
-
-            SetBuffer(buffer);
+            Buffers[0] = new Buffer(ref bDesc, bData);
 
             Unlock();
         }

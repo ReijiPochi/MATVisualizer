@@ -11,5 +11,8 @@ namespace MATVisualizer.Graphics.Core
     {
         [DllImport("GraphicsCore.dll", EntryPoint = "Buffer_Create", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
         public static extern IntPtr Create(ref BufferDescription desc, IntPtr data);
+
+        [DllImport("GraphicsCore.dll", EntryPoint = "Buffer_Release", CallingConvention = CallingConvention.Cdecl, SetLastError = true)]
+        public static extern void Release(IntPtr buffer);
     }
 }

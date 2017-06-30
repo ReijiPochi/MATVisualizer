@@ -21,7 +21,7 @@ struct GraphicsCoreDescription
 	HWND handle;
 	int width;
 	int height;
-	RenderCallback* callback;
+	RenderCallback callback;
 };
 
 struct GlobalCBufferData
@@ -41,7 +41,7 @@ class GraphicsCore
 public:
 	static bool						Ready;
 	static bool						rendering;
-	static RenderCallback*				callback;
+	static RenderCallback				callback;
 	static std::vector<CallbackData> queue;
 	static HWND						hWnd;					// ウィンドウハンドル
 	static float					viewWidth;
@@ -67,7 +67,9 @@ void AddToQueue(CallbackData callback);
 DLL_API int GraphicsCore_Initialize(GraphicsCoreDescription desc);
 DLL_API ID3D11Device* GraphicsCore_GetDevice();
 DLL_API void GraphicsCore_AddToRenderingList(GraphicsObject* object);
+DLL_API void GraphicsCore_SetCallback(void(*callback)());
 DLL_API void GraphicsCore_SetCamera(Camera* camera);
 DLL_API HRESULT GraphicsCore_Resize(int width, int height);
 DLL_API void GraphicsCore_Finalize();
+DLL_API int GraphicsCore_GetFinalizeState();
 DLL_API GraphicsObject* TEST(GraphicsObjectDescription* desc);

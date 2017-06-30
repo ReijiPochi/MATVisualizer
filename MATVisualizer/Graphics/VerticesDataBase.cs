@@ -7,11 +7,10 @@ using System.Threading.Tasks;
 
 namespace MATVisualizer.Graphics
 {
-    public abstract class VerticesData : IDisposable
+    public abstract class VerticesData : DisposableObject
     {
         public IntPtr Pointer { get; protected set; }
         public uint NumVertices { get; set; }
         public VertexType Type { get; set; }
-        public abstract void Dispose();
     }
 }
